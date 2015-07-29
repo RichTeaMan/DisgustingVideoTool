@@ -22,6 +22,8 @@ namespace VideoTool
 
         const string HANDBRAKE_TEMPLATE = "-i \"{0}\" -o \"{1}\"";
 
+        const string CONVERTED_VIDEO_PREFIX = "backup";
+
         static void Main(string[] args)
         {
             try
@@ -136,7 +138,7 @@ namespace VideoTool
             foreach (var f in Directory.EnumerateFiles(curDir))
             {
                 var fi = new FileInfo(f);
-                if (VIDEO_EXTENSIONS.Contains(fi.Extension.ToLower()))
+                if (!fi.Name.StartsWith(CONVERTED_VIDEO_PREFIX) && VIDEO_EXTENSIONS.Contains(fi.Extension.ToLower()))
                 {
                     yield return f;
                 }
