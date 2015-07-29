@@ -116,7 +116,11 @@ namespace VideoTool
 
         private static void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            Console.WriteLine(e.Data);
+            Console.Write(e.Data);
+            if(!e.Data.EndsWith(Environment.NewLine))
+            {
+                Console.SetCursorPosition(0, Console.CursorTop);
+            }
         }
 
         private static IEnumerable<string> GetVideoFiles()
