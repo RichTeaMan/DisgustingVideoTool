@@ -109,7 +109,7 @@ namespace VideoTool
                 process.WaitForExit();
             }
 
-            var newPath = Path.Combine(fi.DirectoryName, "rename" + fi.Name);
+            var newPath = Path.Combine(fi.DirectoryName, "backup" + fi.Name);
 
             File.Move(videoPath, newPath);
         }
