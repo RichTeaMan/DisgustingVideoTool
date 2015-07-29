@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using YoutubeExtractor;
 
-namespace YouTubeFetcher
+namespace VideoTool
 {
     class Program
     {
