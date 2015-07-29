@@ -1,6 +1,8 @@
 ﻿using CommandLineParser;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -15,6 +17,10 @@ namespace YouTubeFetcher
         const string YOUTUBE_TEMPLATE = "http://www.youtube.com/watch?v={0}";
 
         const string SAVE_FOLDER = "YoutubeVideos";
+
+        readonly static string[] VIDEO_EXTENSIONS = new[] { ".mkv", ".flv", ".avi", ".mov" };
+
+        const string HANDBRAKE_TEMPLATE = "-i \"{0}\" -o \"{1}\"";
 
         static void Main(string[] args)
         {
@@ -55,6 +61,75 @@ namespace YouTubeFetcher
 
             }
             Console.WriteLine("Downloads complete!");
+        }
+
+        [ClCommand("convert")]
+        public static void Convert()
+        {
+            // get videos to convert
+            var videoPaths = GetVideoFiles();
+
+            foreach (var videoPath in videoPaths)
+            {
+                try
+                {
+                    ConvertVideo(videoPath);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("An error occured: {0}", ex.Message);
+                }
+
+            }
+            Console.WriteLine("Conversion complete!");
+        }
+
+        private static void ConvertVideo(string videoPath)
+        {
+            var fi = new FileInfo(videoPath);
+            var output = videoPath.Replace(fi.Extension, ".mp4");
+
+            var command = string.Format(HANDBRAKE_TEMPLATE, videoPath, output);
+
+            var startInfo = new ProcessStartInfo()
+            {
+                FileName = "handbrakecli.exe",
+                Arguments = command,
+                UseShellExecute = false,
+                WorkingDirectory = Directory.GetCurrentDirectory(),
+                RedirectStandardOutput = true,                
+            };
+
+            using (var process = new Process())
+            {
+                process.OutputDataReceived += Process_OutputDataReceived;
+                process.StartInfo = startInfo;
+                process.Start();
+                process.BeginOutputReadLine();
+                process.WaitForExit();
+            }
+
+            var newPath = Path.Combine(fi.DirectoryName, "rename" + fi.Name);
+
+            File.Move(videoPath, newPath);
+        }
+
+        private static void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            Console.WriteLine(e.Data);
+        }
+
+        private static IEnumerable<string> GetVideoFiles()
+        {
+            var curDir = Directory.GetCurrentDirectory();
+            foreach (var f in Directory.EnumerateFiles(curDir))
+            {
+                var fi = new FileInfo(f);
+                if (VIDEO_EXTENSIONS.Contains(fi.Extension.ToLower()))
+                {
+                    yield return f;
+                }
+            }
         }
 
         private static void DownloadYoutubeVideo(string saveLocation, string url)
