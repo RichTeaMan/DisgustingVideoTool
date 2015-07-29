@@ -109,17 +109,24 @@ namespace VideoTool
                 process.WaitForExit();
             }
 
-            var newPath = Path.Combine(fi.DirectoryName, "backup" + fi.Name);
+            var newPath = Path.Combine(fi.DirectoryName, CONVERTED_VIDEO_PREFIX + fi.Name);
 
             File.Move(videoPath, newPath);
         }
 
         private static void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            Console.Write(e.Data);
-            if(!e.Data.EndsWith(Environment.NewLine))
+            if (string.IsNullOrEmpty(e.Data))
             {
-                Console.SetCursorPosition(0, Console.CursorTop);
+                Console.WriteLine();
+            }
+            else
+            {
+                Console.Write(e.Data);
+                if (!e.Data.EndsWith(Environment.NewLine))
+                {
+                    Console.SetCursorPosition(0, Console.CursorTop);
+                }
             }
         }
 
