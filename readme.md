@@ -8,3 +8,7 @@ A quick and dirty (and limited) command line video tool for Windows. Other OS wi
 * convert
   * Converts all videos in the working directory with the extensions .mkv, .flv, .avi, .mov into mp4 and renames the original file with a backup prefix.
    Depends on [Handbrake](https://handbrake.fr/) being installed and handbrakecli.exe being in PATH.
+* list-backups
+  * List backup video files in the current directory made during converts.
+* delete-backups
+  * Permanently delete backup video files in the current directory made during converts.
