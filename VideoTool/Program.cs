@@ -112,7 +112,7 @@ namespace VideoTool
             }
 
             var newPath = Path.Combine(fi.DirectoryName, CONVERTED_VIDEO_PREFIX + fi.Name);
-
+            // change source file to back up name.
             File.Move(videoPath, newPath);
         }
 
