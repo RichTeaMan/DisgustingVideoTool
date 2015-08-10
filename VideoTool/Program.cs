@@ -69,13 +69,13 @@ namespace VideoTool
         public static void Convert()
         {
             // get videos to convert
-            var videoPaths = GetVideoFiles();
+            var videoFiles = GetVideoFiles();
 
-            foreach (var videoPath in videoPaths)
+            foreach (var videoFile in videoFiles)
             {
                 try
                 {
-                    ConvertVideo(videoPath);
+                    ConvertVideo(videoFile.FullName);
                 }
                 catch (Exception ex)
                 {
@@ -116,6 +116,58 @@ namespace VideoTool
             File.Move(videoPath, newPath);
         }
 
+        [ClCommand("list-backups")]
+        public static void ListBackups()
+        {
+            var list = GetBackupVideoFiles().Select(fi => fi.Name).ToArray();
+            if(list.Count() == 0)
+            {
+                Console.WriteLine("No backup video files.");
+            }
+            else
+            {
+                Console.WriteLine("{0} backup video files:", list.Count());
+                foreach(var f in list)
+                {
+                    Console.WriteLine(f);
+                }
+                Console.WriteLine();
+                Console.WriteLine("Run delete-backups to delete.");
+            }
+        }
+
+        [ClCommand("delete-backups")]
+        public static void DeleteBackups()
+        {
+            var list = GetBackupVideoFiles().ToArray();
+            if (list.Count() == 0)
+            {
+                Console.WriteLine("No backup video files.");
+            }
+            else
+            {
+                Console.WriteLine("Deleting {0} backup video files:", list.Count());
+                int deleted = 0;
+                int failed = 0;
+                foreach (var f in list)
+                {
+                    try
+                    {
+                        Console.WriteLine("Deleting {0}.", f.Name);
+                        File.Delete(f.FullName);
+                        deleted++;
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine("Could not delete {0}: {1}", f.Name, ex.Message);
+                        failed++;
+                    }
+                }
+                Console.WriteLine();
+                Console.WriteLine("{0} backups deleted. {1} failed.", deleted, failed);
+            }
+        }
+
         private static void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (string.IsNullOrEmpty(e.Data))
@@ -132,17 +184,27 @@ namespace VideoTool
             }
         }
 
-        private static IEnumerable<string> GetVideoFiles()
+        private static IEnumerable<FileInfo> GetConvertableVideoFiles()
         {
             var curDir = Directory.GetCurrentDirectory();
             foreach (var f in Directory.EnumerateFiles(curDir))
             {
                 var fi = new FileInfo(f);
-                if (!fi.Name.StartsWith(CONVERTED_VIDEO_PREFIX) && VIDEO_EXTENSIONS.Contains(fi.Extension.ToLower()))
+                if (VIDEO_EXTENSIONS.Contains(fi.Extension.ToLower()))
                 {
-                    yield return f;
+                    yield return fi;
                 }
             }
+        }
+
+        private static IEnumerable<FileInfo> GetVideoFiles()
+        {
+            return GetConvertableVideoFiles().Where(fi => !fi.Name.StartsWith(CONVERTED_VIDEO_PREFIX));
+        }
+
+        private static IEnumerable<FileInfo> GetBackupVideoFiles()
+        {
+            return GetConvertableVideoFiles().Where(fi => fi.Name.StartsWith(CONVERTED_VIDEO_PREFIX));
         }
 
         private static void DownloadYoutubeVideo(string saveLocation, string url)
