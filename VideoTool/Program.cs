@@ -20,7 +20,7 @@ namespace VideoTool
 
         readonly static string[] VIDEO_EXTENSIONS = new[] { ".mkv", ".flv", ".avi", ".mov" };
 
-        const string HANDBRAKE_TEMPLATE = "-i \"{0}\" -o \"{1}\"";
+        const string HANDBRAKE_TEMPLATE = "-i \"{0}\" -o \"{1}\" --encoder-level=\"4.1\"  --encoder-profile=high";
 
         const string CONVERTED_VIDEO_PREFIX = "backup";
 
