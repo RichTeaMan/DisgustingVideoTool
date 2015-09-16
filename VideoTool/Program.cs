@@ -18,7 +18,7 @@ namespace VideoTool
 
         const string SAVE_FOLDER = "YoutubeVideos";
 
-        readonly static string[] VIDEO_EXTENSIONS = new[] { ".mkv", ".flv", ".avi", ".mov" };
+        readonly static string[] VIDEO_EXTENSIONS = new[] { ".mp4", ".mkv", ".flv", ".avi", ".mov", ".m4v" };
 
         readonly static string IN_PROGRESS_EXTENSION = ".convert.mp4";
 
@@ -68,13 +68,21 @@ namespace VideoTool
         }
 
         [ClCommand("convert")]
-        public static void Convert()
+        public static void Convert(
+            [ClArgs("mp4")]
+            bool mp4 = false
+            )
         {
             // get videos to convert
             var videoFiles = GetVideoFiles();
 
             foreach (var videoFile in videoFiles)
             {
+                // skip mp4 files if flag is not enabled
+                if(videoFile.Extension == ".mp4" && !mp4)
+                {
+                    continue;
+                }
                 try
                 {
                     ConvertVideo(videoFile.FullName);
@@ -203,7 +211,9 @@ namespace VideoTool
 
         private static IEnumerable<FileInfo> GetVideoFiles()
         {
-            return GetConvertableVideoFiles().Where(fi => !fi.Name.StartsWith(CONVERTED_VIDEO_PREFIX));
+            var backups = new HashSet<string>(GetBackupVideoFiles().Select(v => v.FullName));
+
+            return GetConvertableVideoFiles().Where(fi => !fi.Name.StartsWith(CONVERTED_VIDEO_PREFIX) && !backups.Contains(fi.FullName));
         }
 
         private static IEnumerable<FileInfo> GetBackupVideoFiles()
