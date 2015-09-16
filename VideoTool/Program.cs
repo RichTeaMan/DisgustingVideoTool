@@ -20,7 +20,9 @@ namespace VideoTool
 
         readonly static string[] VIDEO_EXTENSIONS = new[] { ".mkv", ".flv", ".avi", ".mov" };
 
-        const string HANDBRAKE_TEMPLATE = "-i \"{0}\" -o \"{1}\" --encoder-level=\"4.1\"  --encoder-profile=high -f mp4 -e x264";
+        readonly static string IN_PROGRESS_EXTENSION = ".convert.mp4";
+
+        const string HANDBRAKE_TEMPLATE = "-i \"{0}\" -o \"{1}\"  -f mp4 -e x264 --encoder-level=\"4.1\" --encoder-profile=high";
 
         const string CONVERTED_VIDEO_PREFIX = "backup";
 
@@ -90,8 +92,9 @@ namespace VideoTool
         {
             var fi = new FileInfo(videoPath);
             var output = videoPath.Replace(fi.Extension, ".mp4");
+            var workingFile = videoPath.Replace(fi.Extension, IN_PROGRESS_EXTENSION);
 
-            var command = string.Format(HANDBRAKE_TEMPLATE, videoPath, output);
+            var command = string.Format(HANDBRAKE_TEMPLATE, videoPath, workingFile);
 
             var startInfo = new ProcessStartInfo()
             {
@@ -114,6 +117,7 @@ namespace VideoTool
             var newPath = Path.Combine(fi.DirectoryName, CONVERTED_VIDEO_PREFIX + fi.Name);
             // change source file to back up name.
             File.Move(videoPath, newPath);
+            File.Move(workingFile, output);
         }
 
         [ClCommand("list-backups")]
