@@ -22,7 +22,7 @@ namespace VideoTool
 
         readonly static string IN_PROGRESS_EXTENSION = ".convert.mp4";
 
-        const string HANDBRAKE_TEMPLATE = "-i \"{0}\" -o \"{1}\"  -f mp4 -e x264 --encoder-level=\"4.1\" --encoder-profile=high";
+        const string HANDBRAKE_TEMPLATE = "-i \"{0}\" -o \"{1}\"  -f mp4 -e x264";
 
         const string CONVERTED_VIDEO_PREFIX = "backup";
 
