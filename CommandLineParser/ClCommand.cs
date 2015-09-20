@@ -95,8 +95,12 @@ namespace CommandLineParser
             {
                 if (arg.StartsWith("-"))
                 {
-                    currentSwitch = arg.Substring(1).ToLower();
-                    parsedArgs.Add(currentSwitch, new List<string>());
+                    // arguments to a switch can be space or colon seperated. Colon args are found first.
+                    var splits = arg.Split(':');
+                    currentSwitch = splits.First().Substring(1).ToLower();
+
+                    var switchArgs = splits.Skip(1).ToList();
+                    parsedArgs.Add(currentSwitch, switchArgs);
                 }
                 else
                 {
