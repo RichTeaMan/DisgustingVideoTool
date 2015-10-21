@@ -18,7 +18,7 @@ namespace VideoTool
 
         const string SAVE_FOLDER = "YoutubeVideos";
 
-        readonly static string[] VIDEO_EXTENSIONS = new[] { ".mp4", ".mkv", ".flv", ".avi", ".mov", ".m4v" };
+        readonly static string[] VIDEO_EXTENSIONS = new[] { ".mp4", ".mkv", ".flv", ".avi", ".mov", ".m4v", ".mpg" };
 
         readonly static string IN_PROGRESS_EXTENSION = ".convert.mp4";
 
