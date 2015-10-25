@@ -185,12 +185,24 @@ namespace VideoTool
             [ClArgs("pattern")]
             string pattern,
             [ClArgs("replace")]
-            string replace = null)
+            string replace = null,
+            [ClArgs("all")]
+            bool all = false)
         {
             if (replace == null)
                 replace = string.Empty;
-            var videoFiles = GetVideoFiles();
-            foreach(var f in videoFiles)
+
+            IEnumerable<FileInfo> renameFiles;
+            if(all)
+            {
+                var curDir = Directory.GetCurrentDirectory();
+                renameFiles = Directory.EnumerateFiles(curDir).Select(p => new FileInfo(p));
+            }
+            else
+            {
+                renameFiles = GetVideoFiles();
+            }
+            foreach(var f in renameFiles)
             {
                 var newName = f.FullName.Replace(pattern, replace);
                 File.Move(f.FullName, newName);
