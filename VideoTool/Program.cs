@@ -180,6 +180,24 @@ namespace VideoTool
             }
         }
 
+        [ClCommand("rename")]
+        public static void RenameFiles(
+            [ClArgs("pattern")]
+            string pattern,
+            [ClArgs("replace")]
+            string replace = null)
+        {
+            if (replace == null)
+                replace = string.Empty;
+            var videoFiles = GetVideoFiles();
+            foreach(var f in videoFiles)
+            {
+                var newName = f.FullName.Replace(pattern, replace);
+                File.Move(f.FullName, newName);
+            }
+            Console.WriteLine("Files renamed.");
+        }
+
         private static void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (string.IsNullOrEmpty(e.Data))
