@@ -171,6 +171,19 @@ namespace VideoTool
             }
         }
 
+        [ClCommand("restore-backups")]
+        public static void RestoreBackups()
+        {
+            var list = GetBackupVideoFiles();
+            foreach (var f in list)
+            {
+                var newName = f.Name.Remove(0, CONVERTED_VIDEO_PREFIX.Length);
+                var newFullName = Path.Combine(f.DirectoryName, newName);
+                Console.WriteLine("Restoring {0} to {1}.", f.FullName, newFullName);
+                File.Move(f.FullName, newFullName);
+            }
+        }
+
         [ClCommand("delete-backups")]
         public static void DeleteBackups()
         {
