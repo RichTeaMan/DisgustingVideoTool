@@ -228,9 +228,11 @@ namespace VideoTool
             foreach(var f in renameFiles)
             {
                 // get name without extension so extension is not modified.
-                var fileName = f.FullName.Replace(f.Extension, string.Empty);
-                var newName = fileName.Replace(pattern, replace);
-                File.Move(f.FullName, newName + f.Extension);
+                var fileName = f.Name.Replace(f.Extension, string.Empty);
+                var newName = fileName.Replace(pattern, replace) + f.Extension;
+                var newFullName = Path.Combine(f.DirectoryName, newName);
+                Console.WriteLine("Renaming {0} to {1}.", f.FullName, newFullName);
+                File.Move(f.FullName, newFullName);
             }
             Console.WriteLine("Files renamed.");
         }
