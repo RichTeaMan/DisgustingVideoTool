@@ -90,6 +90,23 @@ namespace VideoTool
             Console.WriteLine("Downloads complete!");
         }
 
+        [ClCommand("ytpl")]
+        public static void FetchYoutubePlaylist(
+            [ClArgs("playlist", "pl")]
+            string playlistToken,
+            [ClArgs("outputDirectory", "dir")]
+            string outputDirectory = null
+            )
+        {
+            var factory = new YoutubePlaylistFactory();
+            var playlist = factory.DownloadPlaylist(playlistToken);
+
+            Console.WriteLine("Downloading {0} videos from playlist.", playlist.items.Length);
+            FetchYoutube(playlist.items.Select(i => i.contentDetails.videoId).ToArray());
+
+            Console.WriteLine("Playlist download complete.");
+        }
+
         [ClCommand("convert")]
         public static void Convert(
             [ClArgs("mp4")]
