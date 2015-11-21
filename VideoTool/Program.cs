@@ -311,7 +311,10 @@ namespace VideoTool
         private static void DownloadYoutubeVideo(string saveLocation, string url)
         {
             var infos = DownloadUrlResolver.GetDownloadUrls(url).ToArray();
-            var info = infos.Where(i => i.VideoType == VideoType.Mp4).OrderByDescending(i => i.Resolution).FirstOrDefault();
+            var info = infos
+                .Where(i => i.VideoType == VideoType.Mp4)
+                .OrderByDescending(i => i.Resolution)
+                .FirstOrDefault();
             if (info == null)
             {
                 Console.WriteLine("No appropriate stream found for {0}.", url);
@@ -319,16 +322,26 @@ namespace VideoTool
             else
             {
                 string fileName = Path.Combine(saveLocation, (info.Title + ".mp4"));
-                var downloader = new VideoDownloader(info, fileName);
+                if (File.Exists(fileName))
+                {
+                    Console.WriteLine("File with name {0} already exists. File will not be downloaded.", fileName);
+                }
+                else
+                {
+                    string fileNameDownload = fileName + ".download";
+                    var downloader = new VideoDownloader(info, fileName);
 
-                downloader.DownloadProgressChanged += downloader_DownloadProgressChanged;
-                downloader.Execute();
-                lastProgress = -1;
-                Console.WriteLine("\r'{0}' downloaded to {1}", downloader.Video.Title, fileName);
+                    downloader.DownloadProgressChanged += downloader_DownloadProgressChanged;
+                    downloader.Execute();
+                    lastProgress = -1;
+
+                    File.Move(fileNameDownload, fileName);
+                    Console.WriteLine("\r'{0}' downloaded to {1}", downloader.Video.Title, fileName);
+                }
             }
         }
 
-        static IEnumerable<string> GetYoutubeUrls(IEnumerable<string> urls)
+        private static IEnumerable<string> GetYoutubeUrls(IEnumerable<string> urls)
         {
             foreach(var url in urls)
             {
@@ -359,7 +372,7 @@ namespace VideoTool
 
         static int lastProgress = -1;
 
-        static void downloader_DownloadProgressChanged(object sender, ProgressEventArgs e)
+        private static void downloader_DownloadProgressChanged(object sender, ProgressEventArgs e)
         {
             if (e.ProgressPercentage > lastProgress + 1)
             {
