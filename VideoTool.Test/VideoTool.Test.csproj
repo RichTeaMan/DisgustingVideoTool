@@ -50,7 +50,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="YoutubePlaylistFactory.cs" />
+    <Compile Include="NumberSelectorTest.cs" />
+    <Compile Include="YoutubePlaylistFactoryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
