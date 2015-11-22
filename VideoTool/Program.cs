@@ -329,7 +329,7 @@ namespace VideoTool
                 else
                 {
                     string fileNameDownload = fileName + ".download";
-                    var downloader = new VideoDownloader(info, fileName);
+                    var downloader = new VideoDownloader(info, fileNameDownload);
 
                     downloader.DownloadProgressChanged += downloader_DownloadProgressChanged;
                     downloader.Execute();
