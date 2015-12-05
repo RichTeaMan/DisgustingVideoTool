@@ -64,7 +64,7 @@ namespace VideoTool
             }
             else
             {
-                string fileName = Path.Combine(OutputDirectory, (info.Title + ".mp4"));
+                string fileName = Path.Combine(OutputDirectory, fileNameCleaner(info.Title + ".mp4"));
                 if (File.Exists(fileName))
                 {
                     Console.WriteLine("File with name {0} already exists. File will not be downloaded.", fileName);
@@ -82,6 +82,15 @@ namespace VideoTool
                     Console.WriteLine("\r'{0}' downloaded to {1}", downloader.Video.Title, fileName);
                 }
             }
+        }
+
+        private string fileNameCleaner(string fileName)
+        {
+            foreach(var c in Path.GetInvalidFileNameChars())
+            {
+                fileName = fileName.Replace(c.ToString(), string.Empty);
+            }
+            return fileName;
         }
 
         private IEnumerable<string> GetYoutubeUrls(IEnumerable<string> urls)
