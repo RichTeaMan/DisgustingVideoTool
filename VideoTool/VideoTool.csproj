@@ -65,6 +65,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ImgurAlbum.cs" />
+    <Compile Include="ImgurAlbumFactory.cs" />
+    <Compile Include="ImgurImage.cs" />
+    <Compile Include="ImgurResponse.cs" />
     <Compile Include="Keys.cs" />
     <Compile Include="NumberSelector.cs" />
     <Compile Include="Program.cs" />

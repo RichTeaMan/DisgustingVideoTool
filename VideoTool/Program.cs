@@ -32,7 +32,7 @@ namespace VideoTool
             try
             {
                 command = ClCommandAttribute.GetCommand(typeof(Program), args);
-                
+
             }
             catch (Exception ex)
             {
@@ -45,13 +45,13 @@ namespace VideoTool
                 {
                     command.Invoke();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine("Error running command:");
                     Console.WriteLine(ex.Message);
 
                     var inner = ex.InnerException;
-                    while(inner != null)
+                    while (inner != null)
                     {
                         Console.WriteLine(inner);
                         Console.WriteLine();
@@ -61,6 +61,36 @@ namespace VideoTool
                     Console.WriteLine(ex.StackTrace);
                 }
             }
+        }
+
+        [ClCommand("imgur")]
+        public static void FetchImgurAlbum(
+            [ClArgs("album", "a")]
+            string[] albums
+            )
+        {
+            var pictureDir = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+
+            var imgurAlbumDirectory = new ImgurAlbumFactory();
+            using (var webClient = new WebClient())
+                foreach (var album in albums)
+                {
+                    var imgurAlbum = imgurAlbumDirectory.DownloadAlbum(album);
+                    var albumDir = Path.Combine(pictureDir, "imgur", imgurAlbum.id);
+                    Directory.CreateDirectory(albumDir);
+                    Console.WriteLine("Saving {0} images from {1} to {2}.", imgurAlbum.images_count, album, albumDir);
+                    int count = 1;
+                    foreach (var imgurImage in imgurAlbum.images)
+                    {
+                        var imageFilename = new Uri(imgurImage.link).Segments.Last();
+                        var imagePath = Path.Combine(albumDir, imageFilename);
+                        webClient.DownloadFile(imgurImage.link, imagePath);
+                        Console.Write("\rDownloaded {0} of {1}.", count, imgurAlbum.images_count);
+                        count++;
+                    }
+                    Console.WriteLine();
+                    Console.WriteLine("{0} complete.", album);
+                }
         }
 
         [ClCommand("yt")]
@@ -119,7 +149,7 @@ namespace VideoTool
             foreach (var videoFile in videoFiles)
             {
                 // skip mp4 files if flag is not enabled
-                if(videoFile.Extension == ".mp4" && !mp4)
+                if (videoFile.Extension == ".mp4" && !mp4)
                 {
                     continue;
                 }
@@ -150,7 +180,7 @@ namespace VideoTool
                 Arguments = command,
                 UseShellExecute = false,
                 WorkingDirectory = Directory.GetCurrentDirectory(),
-                RedirectStandardOutput = true,                
+                RedirectStandardOutput = true,
             };
 
             using (var process = new Process())
@@ -172,14 +202,14 @@ namespace VideoTool
         public static void ListBackups()
         {
             var list = GetBackupVideoFiles().Select(fi => fi.Name).ToArray();
-            if(list.Count() == 0)
+            if (list.Count() == 0)
             {
                 Console.WriteLine("No backup video files.");
             }
             else
             {
                 Console.WriteLine("{0} backup video files:", list.Count());
-                foreach(var f in list)
+                foreach (var f in list)
                 {
                     Console.WriteLine(f);
                 }
@@ -222,7 +252,7 @@ namespace VideoTool
                         File.Delete(f.FullName);
                         deleted++;
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         Console.WriteLine("Could not delete {0}: {1}", f.Name, ex.Message);
                         failed++;
@@ -246,7 +276,7 @@ namespace VideoTool
                 replace = string.Empty;
 
             IEnumerable<FileInfo> renameFiles;
-            if(all)
+            if (all)
             {
                 var curDir = Directory.GetCurrentDirectory();
                 renameFiles = Directory.EnumerateFiles(curDir).Select(p => new FileInfo(p));
@@ -255,7 +285,7 @@ namespace VideoTool
             {
                 renameFiles = GetVideoFiles();
             }
-            foreach(var f in renameFiles)
+            foreach (var f in renameFiles)
             {
                 // get name without extension so extension is not modified.
                 var fileName = f.Name.Replace(f.Extension, string.Empty);
@@ -343,9 +373,9 @@ namespace VideoTool
 
         private static IEnumerable<string> GetYoutubeUrls(IEnumerable<string> urls)
         {
-            foreach(var url in urls)
+            foreach (var url in urls)
             {
-                if(!url.ToLower().Contains("youtube"))
+                if (!url.ToLower().Contains("youtube"))
                 {
                     var urlStr = string.Format(YOUTUBE_TEMPLATE, url);
                     yield return urlStr;
@@ -359,7 +389,7 @@ namespace VideoTool
 
         private static string GetSaveLocation(string outputDirectory)
         {
-            if(string.IsNullOrEmpty(outputDirectory))
+            if (string.IsNullOrEmpty(outputDirectory))
             {
                 outputDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), SAVE_FOLDER);
                 if (!Directory.Exists(outputDirectory))
@@ -378,9 +408,9 @@ namespace VideoTool
             {
                 var downloader = (VideoDownloader)sender;
                 lastProgress++;
-                
+
                 Console.Write("\rGetting '{0}'. {1}% complete.", downloader.Video.Title, lastProgress);
-                
+
             }
         }
     }

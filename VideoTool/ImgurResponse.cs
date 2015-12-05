@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace VideoTool
 {
-    class Keys
+    public class ImgurResponse<T>
     {
-        public const string YoutubeKey = "youtube_id";
-        public const string ImgurId = "imgur_id";
+        public T data { get; set; }
+        public bool success { get; set; }
+        public int status { get; set; }
     }
 }

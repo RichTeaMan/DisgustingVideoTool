@@ -17,3 +17,5 @@ A quick and dirty (and limited) command line video tool for Windows. Other OS wi
   * Permanently delete backup video files in the current directory made during converts.
 * rename -pattern -replace
   * Renames all files eligible for conversion and replaces all instances of pattern with replace. If replace is not supplied then pattern is removed from file names.
+* imgur -a cbLdh
+  * Downloads an imgur album with the given album id and saves them in the Windows picture folder.

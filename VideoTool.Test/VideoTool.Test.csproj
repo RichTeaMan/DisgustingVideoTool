@@ -50,6 +50,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="ImgurAlbumFactoryTest.cs" />
     <Compile Include="NumberSelectorTest.cs" />
     <Compile Include="YoutubePlaylistFactoryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -61,6 +62,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ImgurAlbumResponse.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="YoutubePlaylist.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
