@@ -63,6 +63,10 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="YoutubeExtractor, Version=0.10.7.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\YoutubeExtractor.0.10.7\lib\net35\YoutubeExtractor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ImgurAlbum.cs" />
@@ -84,10 +88,6 @@
     <ProjectReference Include="..\CommandLineParser\CommandLineParser.csproj">
       <Project>{5ad8c2d9-57cc-43b3-9260-3da905b4ade8}</Project>
       <Name>CommandLineParser</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\YoutubeExtractor\YoutubeExtractor.csproj">
-      <Project>{ecdc127f-8def-4f99-8300-72c13597339d}</Project>
-      <Name>YoutubeExtractor</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
