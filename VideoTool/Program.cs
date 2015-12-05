@@ -37,7 +37,7 @@ namespace VideoTool
             catch (Exception ex)
             {
                 Console.WriteLine("Error parsing command:");
-                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex);
             }
             if (command != null)
             {
@@ -48,7 +48,7 @@ namespace VideoTool
                 catch (Exception ex)
                 {
                     Console.WriteLine("Error running command:");
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex);
 
                     var inner = ex.InnerException;
                     while (inner != null)
@@ -113,7 +113,7 @@ namespace VideoTool
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("An error occured: {0}", ex.Message);
+                    Console.WriteLine("An error occured: {0}", ex);
                 }
 
             }
@@ -159,7 +159,7 @@ namespace VideoTool
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("An error occured: {0}", ex.Message);
+                    Console.WriteLine("An error occured: {0}", ex);
                 }
 
             }
@@ -254,7 +254,7 @@ namespace VideoTool
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("Could not delete {0}: {1}", f.Name, ex.Message);
+                        Console.WriteLine("Could not delete {0}: {1}", f.Name, ex);
                         failed++;
                     }
                 }
