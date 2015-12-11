@@ -74,12 +74,28 @@ namespace VideoTool
                     string fileNameDownload = fileName + ".download";
                     var downloader = new VideoDownloader(info, fileNameDownload);
 
-                    downloader.DownloadProgressChanged += downloader_DownloadProgressChanged;
+                    int lastProgress = -1;
+                    downloader.DownloadProgressChanged += (sender, eventArgs) =>
+                    {
+                        if (eventArgs.ProgressPercentage > lastProgress + 1)
+                        {
+                            lastProgress++;
+                            Console.Write("\rGetting '{0}'. {1}% complete.", downloader.Video.Title, lastProgress);
+                        }
+                    };
+                    downloader.DownloadFinished += (sender, eventArgs) =>
+                    {
+                        if (downloader.BytesToDownload == null)
+                        {
+                            File.Move(fileNameDownload, fileName);
+                            Console.WriteLine("\r'{0}' downloaded to {1}", downloader.Video.Title, fileName);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Failed to download {0}.", downloader.Video.Title);
+                        }
+                    };
                     downloader.Execute();
-                    lastProgress = -1;
-
-                    File.Move(fileNameDownload, fileName);
-                    Console.WriteLine("\r'{0}' downloaded to {1}", downloader.Video.Title, fileName);
                 }
             }
         }
@@ -106,19 +122,6 @@ namespace VideoTool
                 {
                     yield return url;
                 }
-            }
-        }
-
-        int lastProgress = -1;
-
-        private void downloader_DownloadProgressChanged(object sender, ProgressEventArgs e)
-        {
-            if (e.ProgressPercentage > lastProgress + 1)
-            {
-                var downloader = (VideoDownloader)sender;
-                lastProgress++;
-
-                Console.Write("\rGetting '{0}'. {1}% complete.", downloader.Video.Title, lastProgress);
             }
         }
 
