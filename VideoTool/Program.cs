@@ -94,6 +94,8 @@ namespace VideoTool
         public static void FetchYoutube(
             [ClArgs("watch", "w")]
             string[] watchs,
+            [ClArgs("playlist", "pl")]
+            string[] playlists,
             [ClArgs("outputDirectory", "dir")]
             string outputDirectory = null
             )
@@ -101,7 +103,16 @@ namespace VideoTool
             var youtubeDownloader = new YoutubeDownloader();
             if (outputDirectory != null)
             { youtubeDownloader.OutputDirectory = outputDirectory; }
-            youtubeDownloader.FetchYoutube(watchs);
+
+            if (watchs != null)
+            {
+                foreach (var watch in watchs)
+                {
+                    youtubeDownloader.FetchYoutube(watch);
+                }
+            }
+
+            Console.WriteLine("Downloads complete!");
         }
 
         [ClCommand("ytpl")]
@@ -112,15 +123,11 @@ namespace VideoTool
             string outputDirectory = null
             )
         {
-            var factory = new YoutubePlaylistFactory();
-            var playlist = factory.DownloadPlaylist(playlistToken);
-
             var youtubeDownloader = new YoutubeDownloader();
             if (outputDirectory != null)
             { youtubeDownloader.OutputDirectory = outputDirectory; }
 
-            Console.WriteLine("Downloading {0} videos from playlist.", playlist.items.Length);
-            youtubeDownloader.FetchYoutube(playlist.items.Select(i => i.contentDetails.videoId).ToArray());
+            youtubeDownloader.FetchYoutubePlaylist(playlistToken);
 
             Console.WriteLine("Playlist download complete.");
         }

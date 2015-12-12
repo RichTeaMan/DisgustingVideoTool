@@ -20,24 +20,11 @@ namespace VideoTool
             OutputDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), SAVE_FOLDER);
         }
 
-        public void FetchYoutube(string[] watchs)
+        public void FetchYoutube(string watch)
         {
             CreateSaveLocation();
-
-            var urls = GetYoutubeUrls(watchs).ToArray();
-
-            foreach (var url in urls)
-            {
-                try
-                {
-                    DownloadYoutubeVideo(url);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("An error occured: {0}", ex);
-                }
-            }
-            Console.WriteLine("Downloads complete!");
+            var url = GetYoutubeUrl(watch);
+            DownloadYoutubeVideo(url);
         }
 
         public void FetchYoutubePlaylist(string playlistToken)
@@ -46,9 +33,10 @@ namespace VideoTool
             var playlist = factory.DownloadPlaylist(playlistToken);
 
             Console.WriteLine("Downloading {0} videos from playlist.", playlist.items.Length);
-            FetchYoutube(playlist.items.Select(i => i.contentDetails.videoId).ToArray());
-
-            Console.WriteLine("Playlist download complete.");
+            foreach (var videoUrl in playlist.items.Select(i => i.contentDetails.videoId))
+            {
+                FetchYoutube(videoUrl);
+            }
         }
 
         private void DownloadYoutubeVideo(string url)
@@ -109,20 +97,14 @@ namespace VideoTool
             return fileName;
         }
 
-        private IEnumerable<string> GetYoutubeUrls(IEnumerable<string> urls)
+        private string GetYoutubeUrl(string watch)
         {
-            foreach (var url in urls)
+            var url = watch;
+            if (!watch.ToLower().Contains("youtube"))
             {
-                if (!url.ToLower().Contains("youtube"))
-                {
-                    var urlStr = string.Format(YOUTUBE_TEMPLATE, url);
-                    yield return urlStr;
-                }
-                else
-                {
-                    yield return url;
-                }
+                url = string.Format(YOUTUBE_TEMPLATE, url);
             }
+            return url;
         }
 
         private void CreateSaveLocation()
