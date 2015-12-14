@@ -39,12 +39,29 @@ namespace VideoTool
             }
         }
 
+        private int AudioTypePriority(AudioType audioType)
+        {
+            switch (audioType) {
+                case AudioType.Mp3:
+                    return 4;
+                case AudioType.Aac:
+                    return 3;
+                case AudioType.Vorbis:
+                    return 2;
+                default:    // anthing is better than unknown
+                    return 1;
+                case AudioType.Unknown:
+                    return 0;
+            }
+        }
+
         private void DownloadYoutubeVideo(string url)
         {
             var infos = DownloadUrlResolver.GetDownloadUrls(url).ToArray();
             var info = infos
                 .Where(i => i.VideoType == VideoType.Mp4)
                 .OrderByDescending(i => i.Resolution)
+                .OrderByDescending(i => AudioTypePriority(i.AudioType))
                 .FirstOrDefault();
             if (info == null)
             {
