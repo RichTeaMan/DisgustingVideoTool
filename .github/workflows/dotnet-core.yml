@@ -26,4 +26,8 @@ jobs:
     - name: Test
       run: dotnet test --no-restore --verbosity normal
     - name: Publish
-      run:  dotnet publish VideoTool/VideoTool.csproj -c release -r win10-x64 /p:PublishSingleFile=true
+      run:  dotnet publish VideoTool/VideoTool.csproj -c Release -r win-x64 /p:PublishSingleFile=true
+    - uses: actions/upload-artifact@v2
+      with:
+        name: VideoTool.exe
+        path: VideoTool/bin/Release/netcoreapp3.1/win-x64/publish/VideoTool.exe
