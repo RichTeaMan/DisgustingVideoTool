@@ -13,9 +13,14 @@ namespace VideoTool
 {
     public class VideoConverter
     {
+        private const string CONVERTED_VIDEO_PREFIX = "backup";
+        private const string IN_PROGRESS_EXTENSION = ".convert.mp4";
+
+        private const string FFMPEG_TEMPLATE = "-i {0} -c:v libx264 -b:v 8M -minrate 8M -preset medium -c:a aac -b:a 320K {1} -y -nostdin";
+
         private readonly static string exeDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         private readonly static string programName = "ffmpeg.exe";
-        private readonly string programPath = Path.Combine(exeDirectory, programName);
+        private readonly static string programPath = Path.Combine(exeDirectory, programName);
 
         private async Task DownloadFfmpeg()
         {
@@ -96,6 +101,35 @@ namespace VideoTool
 
             Regex rx = new Regex(@"(?<=ffmpeg version )[^\s]+");
             return rx.Match(output).Value;
+        }
+
+        public async Task ConvertVideo(string videoPath)
+        {
+            var fi = new FileInfo(videoPath);
+            var outputVideo = videoPath.Replace(fi.Extension, ".mp4");
+            var workingFile = videoPath.Replace(fi.Extension, IN_PROGRESS_EXTENSION);
+
+            // ffmpeg -i sample_640x360.mkv -c:v libx264 -b:v 8M -minrate 8M -preset medium -c:a aac -b:a 320K sample_640x360_converted.mp4 -y -nostdin
+            var command = string.Format(FFMPEG_TEMPLATE, videoPath, workingFile);
+
+            Console.WriteLine(command);
+
+            var processInfo = await FetchFfmpegProcess();
+            processInfo.Arguments = command;
+
+            using var process = new Process();
+            process.StartInfo = processInfo;
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            System.Console.WriteLine("Program output:");
+            System.Console.WriteLine(output);
+
+            var newPath = Path.Combine(fi.DirectoryName, CONVERTED_VIDEO_PREFIX + fi.Name);
+            // change source file to back up name.
+            File.Move(videoPath, newPath);
+            File.Move(workingFile, outputVideo);
         }
     }
 }

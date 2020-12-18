@@ -18,6 +18,9 @@
     <None Update="ImgurAlbumResponse.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="sample_640x360.mkv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="YoutubePlaylist.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

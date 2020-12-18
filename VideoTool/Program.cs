@@ -15,10 +15,6 @@ namespace VideoTool
 
         readonly static string[] VIDEO_EXTENSIONS = new[] { ".mp4", ".mkv", ".flv", ".avi", ".mov", ".m4v", ".mpg", ".wmv", ".webm" };
 
-        readonly static string IN_PROGRESS_EXTENSION = ".convert.mp4";
-
-        const string HANDBRAKE_TEMPLATE = "-i \"{0}\" -o \"{1}\"  -f mp4 -e x264";
-
         const string CONVERTED_VIDEO_PREFIX = "backup";
 
         static void Main(string[] args)
@@ -119,7 +115,7 @@ namespace VideoTool
         }
 
         [ClCommand("convert")]
-        public static void Convert(
+        public async static Task Convert(
             [ClArgs("mp4")]
             bool mp4 = false
             )
@@ -136,7 +132,8 @@ namespace VideoTool
                 }
                 try
                 {
-                    ConvertVideo(videoFile.FullName);
+                    var converter = new VideoConverter();
+                    await converter.ConvertVideo(videoFile.FullName);
                 }
                 catch (Exception ex)
                 {
@@ -145,38 +142,6 @@ namespace VideoTool
 
             }
             Console.WriteLine("Conversion complete!");
-        }
-
-        private static void ConvertVideo(string videoPath)
-        {
-            var fi = new FileInfo(videoPath);
-            var output = videoPath.Replace(fi.Extension, ".mp4");
-            var workingFile = videoPath.Replace(fi.Extension, IN_PROGRESS_EXTENSION);
-
-            var command = string.Format(HANDBRAKE_TEMPLATE, videoPath, workingFile);
-
-            var startInfo = new ProcessStartInfo()
-            {
-                FileName = "handbrakecli.exe",
-                Arguments = command,
-                UseShellExecute = false,
-                WorkingDirectory = Directory.GetCurrentDirectory(),
-                RedirectStandardOutput = true,
-            };
-
-            using (var process = new Process())
-            {
-                process.OutputDataReceived += Process_OutputDataReceived;
-                process.StartInfo = startInfo;
-                process.Start();
-                process.BeginOutputReadLine();
-                process.WaitForExit();
-            }
-
-            var newPath = Path.Combine(fi.DirectoryName, CONVERTED_VIDEO_PREFIX + fi.Name);
-            // change source file to back up name.
-            File.Move(videoPath, newPath);
-            File.Move(workingFile, output);
         }
 
         [ClCommand("list-backups")]

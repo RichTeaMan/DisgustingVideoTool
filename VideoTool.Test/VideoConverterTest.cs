@@ -23,5 +23,22 @@ namespace VideoTool.Test
             string version = await videoConverter.FetchFfmpegVersion();
             Assert.AreEqual("2020-12-15-git-32586a42da-essentials_build-www.gyan.dev", version);
         }
+
+        [TestMethod]
+        public async Task ConvertTest()
+        {
+            string fileName = "sample_640x360";
+            string input = fileName + ".mkv";
+            string resultFile = fileName + ".mp4";
+            // remove old runs
+            File.Delete(resultFile);
+            File.Delete(fileName + ".converted.mp4");
+            File.Delete("backup" + input);
+
+            await videoConverter.ConvertVideo(input);
+
+            Assert.IsTrue(File.Exists("sample_640x360.mp4"), "mp4 file does not exist.");
+            Assert.IsTrue(new System.IO.FileInfo(resultFile).Length > 500 * 1000, "mp4 file is not large enough");
+        }
     }
 }
