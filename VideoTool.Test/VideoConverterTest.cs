@@ -9,12 +9,38 @@ namespace VideoTool.Test
     [TestClass]
     public class VideoConverterTest
     {
+        private int sampleFileCount = 0;
+
+        private string rootVideoFileName = "sample";
+
         private VideoConverter videoConverter;
 
         [TestInitialize]
         public void Initialise()
         {
+            Cleanup();
             videoConverter = new VideoConverter();
+        }
+
+        [ClassCleanup]
+        public static void Cleanup()
+        {
+            foreach(var file in Directory.EnumerateFiles(".", "temp-*"))
+            {
+                File.Delete(file);
+            }
+            foreach (var file in Directory.EnumerateFiles(".", "backup*"))
+            {
+                File.Delete(file);
+            }
+        }
+
+        private string CopySampleVideoFile()
+        {
+            string input = $"temp-{sampleFileCount}-{rootVideoFileName}.mkv";
+            File.Copy(rootVideoFileName + ".mkv", input);
+            sampleFileCount++;
+            return input;
         }
 
         [TestMethod]
@@ -27,18 +53,23 @@ namespace VideoTool.Test
         [TestMethod]
         public async Task ConvertTest()
         {
-            string fileName = "sample";
-            string input = fileName + ".mkv";
-            string resultFile = fileName + ".mp4";
-            // remove old runs
-            File.Delete(resultFile);
-            File.Delete(fileName + ".converted.mp4");
-            File.Delete("backup" + input);
+            string input = CopySampleVideoFile();
+            string resultFile = input.Replace(".mkv", ".mp4");
 
             await videoConverter.ConvertVideo(input);
 
             Assert.IsTrue(File.Exists(resultFile), "mp4 file does not exist.");
             Assert.IsTrue(new System.IO.FileInfo(resultFile).Length > 500 * 1000, "mp4 file is not large enough");
+        }
+
+        [TestMethod]
+        public async Task FetchTotalVideoFramesTest()
+        {
+            string input = CopySampleVideoFile();
+
+            var frames = await videoConverter.FetchTotalVideoFrames(input);
+
+            Assert.AreEqual(336L, frames);
         }
     }
 }
