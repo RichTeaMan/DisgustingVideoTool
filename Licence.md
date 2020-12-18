@@ -1,1 +1,0 @@
-﻿Licenced under MIT. Uses the [YoutubeExtractor libary](https://github.com/flagbug/YoutubeExtractor).
