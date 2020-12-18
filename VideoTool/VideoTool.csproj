@@ -9,4 +9,12 @@
     <PackageReference Include="RichTea.CommandLineParser" Version="0.4.0-beta" />
     <PackageReference Include="YoutubeExplode" Version="5.1.9" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.3.37">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Reflection" Version="4.3.0" />
+  </ItemGroup>
 </Project>

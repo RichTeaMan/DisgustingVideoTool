@@ -5,52 +5,24 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace VideoTool
 {
-    class Program
+    public class Program
     {
-
-        readonly static string[] VIDEO_EXTENSIONS = new[] { ".mp4", ".mkv", ".flv", ".avi", ".mov", ".m4v", ".mpg", ".wmv", ".webm" };
-
-        const string CONVERTED_VIDEO_PREFIX = "backup";
+        public static string VersionNumber => typeof(Program).Assembly
+          .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+          .InformationalVersion;
 
         static void Main(string[] args)
         {
-            MethodInvoker command = null;
-            try
-            {
-                command = new CommandLineParserInvoker().GetCommand(typeof(Program), args);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error parsing command:");
-                Console.WriteLine(ex);
-            }
-            if (command != null)
-            {
-                try
-                {
-                    command.Invoke();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Error running command:");
-                    Console.WriteLine(ex);
+            Console.WriteLine("Disgusting Video Converter");
+            Console.WriteLine($"Thomas Holmes 2015-2020. {VersionNumber}");
 
-                    var inner = ex.InnerException;
-                    while (inner != null)
-                    {
-                        Console.WriteLine(inner);
-                        Console.WriteLine();
-                        inner = inner.InnerException;
-                    }
-
-                    Console.WriteLine(ex.StackTrace);
-                }
-            }
+            Parser.ParseCommand<Program>(args);
         }
 
         [ClCommand("imgur")]
@@ -170,7 +142,7 @@ namespace VideoTool
             var list = GetBackupVideoFiles();
             foreach (var f in list)
             {
-                var newName = f.Name.Remove(0, CONVERTED_VIDEO_PREFIX.Length);
+                var newName = f.Name.Remove(0, VideoConverter.CONVERTED_VIDEO_PREFIX.Length);
                 var newFullName = Path.Combine(f.DirectoryName, newName);
                 Console.WriteLine("Restoring {0} to {1}.", f.FullName, newFullName);
                 File.Move(f.FullName, newFullName);
@@ -265,7 +237,7 @@ namespace VideoTool
             foreach (var f in Directory.EnumerateFiles(curDir))
             {
                 var fi = new FileInfo(f);
-                if (VIDEO_EXTENSIONS.Contains(fi.Extension.ToLower()))
+                if (VideoConverter.VIDEO_EXTENSIONS.Contains(fi.Extension.ToLower()))
                 {
                     yield return fi;
                 }
@@ -276,12 +248,12 @@ namespace VideoTool
         {
             var backups = new HashSet<string>(GetBackupVideoFiles().Select(v => v.FullName));
 
-            return GetConvertableVideoFiles().Where(fi => !fi.Name.StartsWith(CONVERTED_VIDEO_PREFIX) && !backups.Contains(fi.FullName));
+            return GetConvertableVideoFiles().Where(fi => !fi.Name.StartsWith(VideoConverter.CONVERTED_VIDEO_PREFIX) && !backups.Contains(fi.FullName));
         }
 
         private static IEnumerable<FileInfo> GetBackupVideoFiles()
         {
-            return GetConvertableVideoFiles().Where(fi => fi.Name.StartsWith(CONVERTED_VIDEO_PREFIX));
+            return GetConvertableVideoFiles().Where(fi => fi.Name.StartsWith(VideoConverter.CONVERTED_VIDEO_PREFIX));
         }
 
     }

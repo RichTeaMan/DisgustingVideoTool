@@ -13,7 +13,10 @@ namespace VideoTool
 {
     public class VideoConverter
     {
-        private const string CONVERTED_VIDEO_PREFIX = "backup";
+        public readonly static string[] VIDEO_EXTENSIONS = new[] { ".mp4", ".mkv", ".flv", ".avi", ".mov", ".m4v", ".mpg", ".wmv", ".webm" };
+
+        public const string CONVERTED_VIDEO_PREFIX = "backup";
+
         private const string IN_PROGRESS_EXTENSION = ".convert.mp4";
 
         private const string FFMPEG_TEMPLATE = "-i {0} -c:v libx264 -b:v 8M -minrate 8M -preset medium -c:a aac -b:a 320K {1} -y -nostdin";
