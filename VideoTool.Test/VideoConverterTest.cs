@@ -27,7 +27,7 @@ namespace VideoTool.Test
         [TestMethod]
         public async Task ConvertTest()
         {
-            string fileName = "sample_640x360";
+            string fileName = "sample";
             string input = fileName + ".mkv";
             string resultFile = fileName + ".mp4";
             // remove old runs
@@ -37,7 +37,7 @@ namespace VideoTool.Test
 
             await videoConverter.ConvertVideo(input);
 
-            Assert.IsTrue(File.Exists("sample_640x360.mp4"), "mp4 file does not exist.");
+            Assert.IsTrue(File.Exists(resultFile), "mp4 file does not exist.");
             Assert.IsTrue(new System.IO.FileInfo(resultFile).Length > 500 * 1000, "mp4 file is not large enough");
         }
     }
