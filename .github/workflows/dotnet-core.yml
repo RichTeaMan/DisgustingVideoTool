@@ -2,9 +2,14 @@ name: .NET Core
 
 on:
   push:
-    branches: [ master ]
+    branches:
+    - '*'
   pull_request:
-    branches: [ master ]
+    branches:
+    - '*'
+  schedule:
+  # run once a week
+  - cron: "0 1 * * 1"
 
 jobs:
   build:
