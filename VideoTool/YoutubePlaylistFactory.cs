@@ -5,33 +5,26 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using YoutubeExplode;
 
 namespace VideoTool
 {
     public class YoutubePlaylistFactory
     {
-        private string urlTemplate = "https://www.googleapis.com/youtube/v3/playlistItems?part=id,contentDetails&playlistId={0}&key={1}";
-
-        public YoutubePlaylist DownloadPlaylist(string playlistId, string nextPageToken = null)
+        public async Task<YoutubePlaylist> DownloadPlaylist(string playlistId, string nextPageToken = null)
         {
-            var url = string.Format(urlTemplate, playlistId, Keys.YoutubeKey);
+            var resultPlaylist = new YoutubePlaylist();
+            var youtube = new YoutubeClient();
 
-            if (nextPageToken != null)
-            {
-                url += "&pageToken=" + nextPageToken;
-            }
-            
-            using (var client = new WebClient())
-            {
-                var payload = client.DownloadString(url);
-                var playlist =  ConvertPlaylist(payload);
-                if(!string.IsNullOrEmpty(playlist.nextPageToken))
-                {
-                    var nextPlaylist = DownloadPlaylist(playlistId, playlist.nextPageToken);
-                    playlist.AddItems(nextPlaylist.items);
-                }
-                return playlist;
-            }
+            // Get playlist metadata
+            var playlist = await youtube.Playlists.GetAsync(playlistId);
+            resultPlaylist.Author = playlist.Author;
+            resultPlaylist.Title = playlist.Title;
+            resultPlaylist.Description = playlist.Description;
+
+            var playlistVideos = await youtube.Playlists.GetVideosAsync(playlist.Id);
+            resultPlaylist.AddItems(playlistVideos);
+            return resultPlaylist;
         }
 
         public YoutubePlaylist ConvertPlaylist(string payload)

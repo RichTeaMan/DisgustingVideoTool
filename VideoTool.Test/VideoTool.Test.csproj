@@ -14,4 +14,12 @@
   <ItemGroup>
     <ProjectReference Include="..\VideoTool\VideoTool.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="ImgurAlbumResponse.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="YoutubePlaylist.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

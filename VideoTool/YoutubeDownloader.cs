@@ -4,7 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using YoutubeExtractor;
+using YoutubeExplode;
+using YoutubeExplode.Videos.Streams;
 
 namespace VideoTool
 {
@@ -20,56 +21,43 @@ namespace VideoTool
             OutputDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), SAVE_FOLDER);
         }
 
-        public void FetchYoutube(string watch)
+        public async Task FetchYoutube(string watch)
         {
             CreateSaveLocation();
             var url = GetYoutubeUrl(watch);
-            DownloadYoutubeVideo(url);
+            await DownloadYoutubeVideo(url);
         }
 
-        public void FetchYoutubePlaylist(string playlistToken)
+        public async Task FetchYoutubePlaylist(string playlistToken)
         {
             var factory = new YoutubePlaylistFactory();
-            var playlist = factory.DownloadPlaylist(playlistToken);
+            var playlist = await factory.DownloadPlaylist(playlistToken);
 
-            Console.WriteLine("Downloading {0} videos from playlist.", playlist.items.Length);
-            foreach (var videoUrl in playlist.items.Select(i => i.contentDetails.videoId))
+            Console.WriteLine($"Downloading {playlist.Videos.Length} videos from playlist.");
+            foreach (var videoUrl in playlist.Videos.Select(i => i.Id))
             {
-                FetchYoutube(videoUrl);
+                await FetchYoutube(videoUrl);
             }
         }
 
-        private int AudioTypePriority(AudioType audioType)
+        private async Task DownloadYoutubeVideo(string url)
         {
-            switch (audioType) {
-                case AudioType.Mp3:
-                    return 4;
-                case AudioType.Aac:
-                    return 3;
-                case AudioType.Vorbis:
-                    return 2;
-                default:    // anthing is better than unknown
-                    return 1;
-                case AudioType.Unknown:
-                    return 0;
-            }
-        }
+            var youtube = new YoutubeClient();
 
-        private void DownloadYoutubeVideo(string url)
-        {
-            var infos = DownloadUrlResolver.GetDownloadUrls(url).ToArray();
-            var info = infos
-                .Where(i => i.VideoType == VideoType.Mp4)
-                .OrderByDescending(i => i.Resolution)
-                .OrderByDescending(i => AudioTypePriority(i.AudioType))
-                .FirstOrDefault();
-            if (info == null)
+            // You can specify video ID or URL
+            var video = await youtube.Videos.GetAsync(url);
+            var streamManifest = await youtube.Videos.Streams.GetManifestAsync(url);
+            var streamInfo = streamManifest
+                .GetVideoOnly()
+                .Where(s => s.Container == Container.Mp4)
+                .WithHighestVideoQuality();
+            if (streamInfo == null)
             {
                 Console.WriteLine("No appropriate stream found for {0}.", url);
             }
             else
             {
-                string fileName = Path.Combine(OutputDirectory, fileNameCleaner(info.Title + ".mp4"));
+                string fileName = Path.Combine(OutputDirectory, FileNameCleaner(video.Title + ".mp4"));
                 if (File.Exists(fileName))
                 {
                     Console.WriteLine("File with name {0} already exists. File will not be downloaded.", fileName);
@@ -77,37 +65,30 @@ namespace VideoTool
                 else
                 {
                     string fileNameDownload = fileName + ".download";
-                    var downloader = new VideoDownloader(info, fileNameDownload);
+                    // Get the actual stream
+                    var stream = await youtube.Videos.Streams.GetAsync(streamInfo);
 
+                    // Download the stream to file
                     int lastProgress = -1;
-                    downloader.DownloadProgressChanged += (sender, eventArgs) =>
+                    IProgress<double> progress = new Progress<double>(progressValue =>
                     {
-                        if (eventArgs.ProgressPercentage > lastProgress + 1)
+                        if (progressValue > lastProgress + 1)
                         {
                             lastProgress++;
-                            Console.Write("\rGetting '{0}'. {1}% complete.", downloader.Video.Title, lastProgress);
+                            Console.Write($"\rGetting '{video.Title}'. {lastProgress}% complete.");
                         }
-                    };
-                    downloader.DownloadFinished += (sender, eventArgs) =>
-                    {
-                        if (downloader.BytesToDownload == null)
-                        {
-                            File.Move(fileNameDownload, fileName);
-                            Console.WriteLine("\r'{0}' downloaded to {1}", downloader.Video.Title, fileName);
-                        }
-                        else
-                        {
-                            Console.WriteLine("Failed to download {0}.", downloader.Video.Title);
-                        }
-                    };
-                    downloader.Execute();
+                    });
+                    await youtube.Videos.Streams.DownloadAsync(streamInfo, fileNameDownload, progress);
+
+                    File.Move(fileNameDownload, fileName);
+                    Console.WriteLine($"\r'{video.Title}' downloaded to {fileName}");
                 }
             }
         }
 
-        private string fileNameCleaner(string fileName)
+        private string FileNameCleaner(string fileName)
         {
-            foreach(var c in Path.GetInvalidFileNameChars())
+            foreach (var c in Path.GetInvalidFileNameChars())
             {
                 fileName = fileName.Replace(c.ToString(), string.Empty);
             }

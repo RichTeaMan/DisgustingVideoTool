@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using YoutubeExtractor;
 
 namespace VideoTool
 {
@@ -89,7 +88,7 @@ namespace VideoTool
         }
 
         [ClCommand("yt")]
-        public static void FetchYoutube(
+        public async static Task FetchYoutube(
             [ClArgs("watch", "w")]
             string[] watchs = null,
             [ClArgs("playlist", "pl")]
@@ -106,14 +105,14 @@ namespace VideoTool
             {
                 foreach (var watch in watchs)
                 {
-                    youtubeDownloader.FetchYoutube(watch);
+                    await youtubeDownloader.FetchYoutube(watch);
                 }
             }
             if (playlists != null)
             {
                 foreach (var playlist in playlists)
                 {
-                    youtubeDownloader.FetchYoutubePlaylist(playlist);
+                    await youtubeDownloader.FetchYoutubePlaylist(playlist);
                 }
             }
             Console.WriteLine("Downloads complete!");

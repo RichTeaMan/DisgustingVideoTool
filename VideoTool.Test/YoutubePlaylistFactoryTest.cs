@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace VideoTool.Test
 {
@@ -37,10 +38,10 @@ namespace VideoTool.Test
         }
 
         [TestMethod]
-        public void DownloadPlaylist()
+        public async Task DownloadPlaylist()
         {
-            var playlist = factory.DownloadPlaylist(RESOURCE_LINK);
-            Assert.AreEqual(30, playlist.items.Length);
+            var playlist = await factory.DownloadPlaylist(RESOURCE_LINK);
+            Assert.AreEqual(30, playlist.Videos.Length);
         }
     }
 }
