@@ -1,5 +1,4 @@
-﻿using CommandLineParser;
-using Microsoft.VisualBasic;
+﻿using RichTea.CommandLineParser;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -28,8 +27,7 @@ namespace VideoTool
             MethodInvoker command = null;
             try
             {
-                command = ClCommandAttribute.GetCommand(typeof(Program), args);
-
+                command = new CommandLineParserInvoker().GetCommand(typeof(Program), args);
             }
             catch (Exception ex)
             {
