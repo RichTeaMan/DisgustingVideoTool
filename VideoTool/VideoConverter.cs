@@ -23,7 +23,7 @@ namespace VideoTool
 
         private const string FFMPEG_FRAME_COUNT_TEMPLATE = "-progress pipe:1 -i {0} -map 0:v:0 -c copy -f null - ";
 
-        private readonly static string exeDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        private readonly static string exeDirectory = "./";
         private readonly static string programName = "ffmpeg.exe";
         private readonly static string programPath = Path.Combine(exeDirectory, programName);
 
@@ -47,6 +47,7 @@ namespace VideoTool
                     throw new Exception("Could not find ffmpeg.exe in zip archive.");
                 }
                 File.Move(programPathFromArchive, programPath);
+                Console.WriteLine($"ffmpeg saved to {programPath}.");
             }
             finally
             {
