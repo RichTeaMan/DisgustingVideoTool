@@ -19,7 +19,7 @@ namespace VideoTool
 
         private const string IN_PROGRESS_EXTENSION = ".convert.mp4";
 
-        private const string FFMPEG_TEMPLATE = "-i {0} -c:v libx264 -b:v 8M -minrate 8M -preset medium -c:a aac -b:a 320K {1} -y -progress pipe:1";// -nostdin";
+        private const string FFMPEG_TEMPLATE = "-i {0} -c:v libx264 -crf 20 -c:a aac -b:a 320K {1} -y -progress pipe:1";
 
         private const string FFMPEG_FRAME_COUNT_TEMPLATE = "-progress pipe:1 -i {0} -map 0:v:0 -c copy -f null - ";
 
