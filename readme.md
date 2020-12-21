@@ -1,5 +1,7 @@
 ﻿# VideoTool
 
+![Build](https://github.com/RichTeaMan/DisgustingVideoTool/workflows/Build/badge.svg)
+
 A quick and dirty (and limited) command line video tool for Windows. Other OS with .NET may work, but the tool has not been tested or designed with those systems in mind.
 
 ## Commands
