@@ -33,7 +33,7 @@ namespace VideoTool
             string url = "https://github.com/GyanD/codexffmpeg/releases/download/2020-12-15-git-32586a42da/ffmpeg-2020-12-15-git-32586a42da-essentials_build.zip";
 
             string ffmpegZipLocation = Path.Combine(exeDirectory, "ffmpeg.zip");
-            string ffmpegUnzipLocation = Path.Combine(exeDirectory, "ffmpeg");
+            string ffmpegUnzipLocation = Path.Combine(exeDirectory, "ffmpeg-decom");
 
             if (File.Exists(programName))
             {
@@ -81,7 +81,7 @@ namespace VideoTool
             string url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz";
 
             string ffmpegZipLocation = Path.Combine(exeDirectory, "ffmpeg-release-amd64-static.tar.xz");
-            string ffmpegUnzipLocation = Path.Combine(exeDirectory, "ffmpeg");
+            string ffmpegUnzipLocation = Path.Combine(exeDirectory, "ffmpeg-decom");
 
             if (File.Exists(programName))
             {

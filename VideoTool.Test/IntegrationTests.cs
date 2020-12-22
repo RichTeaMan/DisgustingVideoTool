@@ -27,6 +27,7 @@ namespace VideoTool.Test
         public void Cleanup()
         {
             File.Delete("ffmpeg.exe");
+            File.Delete("ffmpeg");
             foreach (var file in Directory.EnumerateFiles(".", "backup*"))
             {
                 string oldName = file.Replace("backup", "");

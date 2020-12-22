@@ -22,14 +22,28 @@ namespace VideoTool.Test
             videoConverter = new VideoConverter();
         }
 
-        [ClassCleanup]
-        public static void Cleanup()
+        [TestCleanup]
+        public void Cleanup()
         {
-            foreach(var file in Directory.EnumerateFiles(".", "temp-*"))
+            File.Delete("ffmpeg.exe");
+            File.Delete("ffmpeg");
+            foreach (var file in Directory.EnumerateFiles(".", "backup*"))
+            {
+                string oldName = file.Replace("backup", "");
+                if (File.Exists(oldName))
+                {
+                    File.Delete(file);
+                }
+                else
+                {
+                    File.Move(file, oldName);
+                }
+            }
+            foreach (var file in Directory.EnumerateFiles(".", "temp*"))
             {
                 File.Delete(file);
             }
-            foreach (var file in Directory.EnumerateFiles(".", "backup*"))
+            foreach (var file in Directory.EnumerateFiles(".", "*.mp4"))
             {
                 File.Delete(file);
             }
