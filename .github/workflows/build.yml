@@ -20,10 +20,14 @@ jobs:
         - name: Windows
           os: windows-latest
           target: windows
+          runtime: win-x64
+          artifact: VideoTool.exe
 
         - name: Linux
           os: ubuntu-20.04
           target: linux
+          runtime: linux-x64
+          artifact: VideoTool
 
     name: ${{ matrix.cfg.name }} ${{ github.ref }}
     runs-on: ${{ matrix.cfg.os }}
@@ -44,8 +48,8 @@ jobs:
     - name: Test
       run: dotnet test --no-restore --verbosity normal
     - name: Publish
-      run:  dotnet publish VideoTool/VideoTool.csproj -c Release -r win-x64 /p:PublishSingleFile=true
+      run:  dotnet publish VideoTool/VideoTool.csproj -c Release -r ${{ matrix.cfg.runtime }} /p:PublishSingleFile=true
     - uses: actions/upload-artifact@v2
       with:
-        name: VideoTool.exe
-        path: VideoTool/bin/Release/netcoreapp3.1/win-x64/publish/VideoTool.exe
+        name: VideoTool
+        path: VideoTool/bin/Release/netcoreapp3.1/${{ matrix.cfg.runtime }}/publish/${{ matrix.cfg.artifact }}
