@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharpCompress.Readers;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -24,15 +25,20 @@ namespace VideoTool
         private const string FFMPEG_FRAME_COUNT_TEMPLATE = "-progress pipe:1 -i \"{0}\" -map 0:v:0 -c copy -f null - ";
 
         private readonly static string exeDirectory = "./";
-        private readonly static string programName = "ffmpeg.exe";
+        private readonly static string programName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "ffmpeg.exe" : "ffmpeg";
         private readonly static string programPath = Path.Combine(exeDirectory, programName);
 
-        private async Task DownloadFfmpeg()
+        private async Task DownloadFfmpegWindows()
         {
             string url = "https://github.com/GyanD/codexffmpeg/releases/download/2020-12-15-git-32586a42da/ffmpeg-2020-12-15-git-32586a42da-essentials_build.zip";
 
             string ffmpegZipLocation = Path.Combine(exeDirectory, "ffmpeg.zip");
             string ffmpegUnzipLocation = Path.Combine(exeDirectory, "ffmpeg");
+
+            if (File.Exists(programName))
+            {
+                return;
+            }
 
             try
             {
@@ -70,16 +76,72 @@ namespace VideoTool
             }
         }
 
-        private async Task<ProcessStartInfo> FetchFfmpegProcess()
+        private async Task DownloadFfmpegLinux()
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            string url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz";
+
+            string ffmpegZipLocation = Path.Combine(exeDirectory, "ffmpeg-release-amd64-static.tar.xz");
+            string ffmpegUnzipLocation = Path.Combine(exeDirectory, "ffmpeg");
+
+            if (File.Exists(programName))
             {
-                throw new Exception("Video conversion only supported on Windows.");
+                return;
             }
 
-            if (!File.Exists(programName))
+            try
             {
-                await DownloadFfmpeg();
+                using var webclient = new WebClient();
+                await webclient.DownloadFileTaskAsync(url, ffmpegZipLocation);
+
+                using (Stream stream = File.OpenRead(ffmpegZipLocation))
+                using (var reader = ReaderFactory.Open(stream))
+                {
+                    Directory.CreateDirectory(ffmpegUnzipLocation);
+                    reader.WriteAllToDirectory(ffmpegUnzipLocation);
+                }
+
+                var programPathFromArchive = Directory.EnumerateFiles(ffmpegUnzipLocation, programName, SearchOption.AllDirectories).FirstOrDefault();
+                if (programPathFromArchive == null)
+                {
+                    throw new Exception("Could not find ffmpeg in the archive.");
+                }
+                File.Move(programPathFromArchive, programPath);
+                Console.WriteLine($"ffmpeg saved to {programPath}.");
+            }
+            finally
+            {
+                try
+                {
+                    Directory.Delete(ffmpegUnzipLocation, true);
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine(ex);
+                }
+                try
+                {
+                    File.Delete(ffmpegZipLocation);
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+        }
+
+        private async Task<ProcessStartInfo> FetchFfmpegProcess()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                await DownloadFfmpegWindows();
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                await DownloadFfmpegLinux();
+            }
+            else
+            {
+                throw new Exception("Video conversion not supported on this platform.");
             }
 
             var startInfo = new ProcessStartInfo()
