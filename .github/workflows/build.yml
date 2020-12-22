@@ -12,10 +12,21 @@ on:
   - cron: "0 1 * * 1"
 
 jobs:
-  build:
+  ci-build:
+    strategy:
+      fail-fast: false
+      matrix:
+        cfg:
+        - name: Windows
+          os: windows-latest
+          target: windows
 
-    runs-on: windows-latest
+        - name: Linux
+          os: ubuntu-20.04
+          target: linux
 
+    name: ${{ matrix.cfg.name }} ${{ github.ref }}
+    runs-on: ${{ matrix.cfg.os }}
     steps:
     - uses: actions/checkout@v2
       with:
