@@ -106,6 +106,19 @@ namespace VideoTool
                     throw new Exception("Could not find ffmpeg in the archive.");
                 }
                 File.Move(programPathFromArchive, programPath);
+
+                // chmod +x ffmpeg
+                ProcessStartInfo startInfo = new ProcessStartInfo()
+                {
+                    FileName = "/bin/bash",
+                    Arguments = $"-c \" chmod +x  {programPath}\" ",
+
+                    CreateNoWindow = true
+                };
+
+                Process proc = new Process() { StartInfo = startInfo, };
+                proc.Start();
+
                 Console.WriteLine($"ffmpeg saved to {programPath}.");
             }
             finally
