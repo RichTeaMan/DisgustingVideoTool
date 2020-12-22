@@ -85,7 +85,6 @@ namespace VideoTool
             var startInfo = new ProcessStartInfo()
             {
                 FileName = programPath,
-                ///Arguments = command,
                 UseShellExecute = false,
                 WorkingDirectory = Directory.GetCurrentDirectory(),
                 RedirectStandardOutput = true,
@@ -163,7 +162,6 @@ namespace VideoTool
             var workingFile = videoPath.Replace(fi.Extension, IN_PROGRESS_EXTENSION).Replace(@"\", "/");
 
             var command = string.Format(FFMPEG_TEMPLATE, convertedPath, workingFile);
-            Console.WriteLine(command);
 
             var processInfo = await FetchFfmpegProcess();
             processInfo.Arguments = command;
