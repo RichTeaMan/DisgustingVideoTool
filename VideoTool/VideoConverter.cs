@@ -19,9 +19,9 @@ namespace VideoTool
 
         private const string IN_PROGRESS_EXTENSION = ".convert.mp4";
 
-        private const string FFMPEG_TEMPLATE = "-i {0} -c:v libx264 -crf 20 -c:a aac -b:a 320K {1} -y -progress pipe:1";
+        private const string FFMPEG_TEMPLATE = "-i \"{0}\" -c:v libx264 -crf 20 -c:a aac -b:a 320K \"{1}\" -y -progress pipe:1";
 
-        private const string FFMPEG_FRAME_COUNT_TEMPLATE = "-progress pipe:1 -i {0} -map 0:v:0 -c copy -f null - ";
+        private const string FFMPEG_FRAME_COUNT_TEMPLATE = "-progress pipe:1 -i \"{0}\" -map 0:v:0 -c copy -f null - ";
 
         private readonly static string exeDirectory = "./";
         private readonly static string programName = "ffmpeg.exe";
@@ -127,7 +127,6 @@ namespace VideoTool
             {
                 if (e?.Data?.StartsWith("frame=") == true)
                 {
-
                     string frameStr = e.Data.Replace("frame=", "");
                     if (long.TryParse(frameStr, out long frame))
                     {
@@ -154,16 +153,17 @@ namespace VideoTool
 
         public async Task ConvertVideo(string videoPath)
         {
+            string convertedPath = videoPath.Replace(@"\", "/");
             var startTime = DateTimeOffset.Now;
 
             var totalFrameCount = await FetchTotalVideoFrames(videoPath);
 
-            var fi = new FileInfo(videoPath);
-            var outputVideo = videoPath.Replace(fi.Extension, ".mp4");
-            var workingFile = videoPath.Replace(fi.Extension, IN_PROGRESS_EXTENSION);
+            var fi = new FileInfo(convertedPath);
+            var outputVideo = videoPath.Replace(fi.Extension, ".mp4").Replace(@"\", "/");
+            var workingFile = videoPath.Replace(fi.Extension, IN_PROGRESS_EXTENSION).Replace(@"\", "/");
 
-            // ffmpeg -i sample_640x360.mkv -c:v libx264 -b:v 8M -minrate 8M -preset medium -c:a aac -b:a 320K sample_640x360_converted.mp4 -y -nostdin
-            var command = string.Format(FFMPEG_TEMPLATE, videoPath, workingFile);
+            var command = string.Format(FFMPEG_TEMPLATE, convertedPath, workingFile);
+            Console.WriteLine(command);
 
             var processInfo = await FetchFfmpegProcess();
             processInfo.Arguments = command;
@@ -174,6 +174,7 @@ namespace VideoTool
             };
 
             long lastFrame = 0;
+            bool completed = false;
             process.OutputDataReceived += (sender, e) =>
             {
                 if (e?.Data?.StartsWith("frame=") == true)
@@ -219,6 +220,7 @@ namespace VideoTool
                 else if (e?.Data == "progress=end")
                 {
                     Console.WriteLine();
+                    completed = true;
                 }
             };
 
@@ -226,23 +228,31 @@ namespace VideoTool
             process.BeginOutputReadLine();
             process.WaitForExit();
 
-            var endTime = DateTimeOffset.Now;
-            var conversionDuration = endTime - startTime;
-            Console.WriteLine($"{fi.Name} converted in {conversionDuration}.");
+            if (completed)
+            {
+
+                var endTime = DateTimeOffset.Now;
+                var conversionDuration = endTime - startTime;
+                Console.WriteLine($"{fi.Name} converted in {conversionDuration}.");
 
 
-            var backupPath = Path.Combine(fi.DirectoryName, CONVERTED_VIDEO_PREFIX + fi.Name);
-            // change source file to back up name.
-            if (File.Exists(backupPath))
-            {
-                File.Delete(backupPath);
+                var backupPath = Path.Combine(fi.DirectoryName, CONVERTED_VIDEO_PREFIX + fi.Name);
+                // change source file to back up name.
+                if (File.Exists(backupPath))
+                {
+                    File.Delete(backupPath);
+                }
+                File.Move(videoPath, backupPath);
+                if (File.Exists(outputVideo))
+                {
+                    File.Delete(outputVideo);
+                }
+                File.Move(workingFile, outputVideo);
             }
-            File.Move(videoPath, backupPath);
-            if (File.Exists(outputVideo))
+            else
             {
-                File.Delete(outputVideo);
+                Console.WriteLine("ffmpeg did not complete successfully.");
             }
-            File.Move(workingFile, outputVideo);
         }
     }
 }
