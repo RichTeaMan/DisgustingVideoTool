@@ -22,7 +22,7 @@ namespace VideoTool
 
         private const string FFMPEG_FRAME_COUNT_TEMPLATE = "-progress pipe:1 -i \"{0}\" -map 0:v:0 -c copy -f null - ";
 
-        private const string ROOT_FFMPEG_URL = "https://github.com/ADD_MORE{0}.zip";
+        private const string ROOT_FFMPEG_URL = "https://github.com/RichTeaMan/DisgustingVideoTool/releases/download/0.10.0/ffmpeg-{0}.zip";
 
         private readonly static string exeDirectory = "./";
         private readonly static string programName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "ffmpeg.exe" : "ffmpeg";
