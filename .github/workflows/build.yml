@@ -51,5 +51,5 @@ jobs:
       run:  dotnet publish VideoTool/VideoTool.csproj -c Release -r ${{ matrix.cfg.runtime }} /p:PublishSingleFile=true
     - uses: actions/upload-artifact@v2
       with:
-        name: VideoTool
+        name: VideoTool-${{ matrix.cfg.runtime }}
         path: VideoTool/bin/Release/netcoreapp3.1/${{ matrix.cfg.runtime }}/publish/${{ matrix.cfg.artifact }}
