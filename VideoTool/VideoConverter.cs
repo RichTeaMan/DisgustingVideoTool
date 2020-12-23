@@ -39,6 +39,10 @@ namespace VideoTool
             {
                 package = "linux-x64";
             }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                package = "osx-x64";
+            }
             else
             {
                 throw new Exception("Unsupported OS.");
@@ -68,7 +72,7 @@ namespace VideoTool
                 }
                 File.Move(programPathFromArchive, programPath);
 
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
                     // chmod +x ffmpeg
                     ProcessStartInfo startInfo = new ProcessStartInfo()
