@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 
@@ -49,18 +50,31 @@ namespace VideoTool.Test
         [TestMethod]
         public void NoArgsTest()
         {
-            using var process = VideoToolProcess();
+            try
+            {
+                using var process = VideoToolProcess();
 
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
+                process.Start();
+                string output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
 
-            Console.WriteLine("Videotool convert output:");
-            Console.WriteLine(output);
-            Console.WriteLine("-----------");
-            Console.WriteLine();
+                Console.WriteLine("Videotool convert output:");
+                Console.WriteLine(output);
+                Console.WriteLine("-----------");
+                Console.WriteLine();
 
-            Assert.IsNotNull(output);
+                Assert.IsNotNull(output);
+            }
+            catch (Win32Exception ex)
+            {
+                Console.WriteLine(ex);
+                Console.WriteLine("Files:");
+                foreach(var f in Directory.EnumerateFiles(".", "*", SearchOption.AllDirectories))
+                {
+                    Console.WriteLine(f);
+                }
+                Assert.Fail("Should not throw.");
+            }
         }
 
         [TestMethod]
