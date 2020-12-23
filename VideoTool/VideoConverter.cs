@@ -90,8 +90,13 @@ namespace VideoTool
 
             try
             {
-                using var webclient = new WebClient();
-                await webclient.DownloadFileTaskAsync(url, ffmpegZipLocation);
+                var request = WebRequest.Create(url);
+                request.Timeout = 5 * 60 * 1000;
+                using (var requestStream = await request.GetRequestStreamAsync())
+                using (var fileStream = new FileStream(ffmpegZipLocation, FileMode.CreateNew))
+                {
+                    await requestStream.CopyToAsync(fileStream);
+                }
 
                 using (Stream stream = File.OpenRead(ffmpegZipLocation))
                 using (var reader = ReaderFactory.Open(stream))
