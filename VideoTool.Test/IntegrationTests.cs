@@ -9,10 +9,11 @@ namespace VideoTool.Test
     [TestClass]
     public class IntegrationTests
     {
-        private Process VideoToolProcess()
+        private Process VideoToolProcess(string argument)
         {
             Process externalProcess = new Process();
-            externalProcess.StartInfo.FileName = "VideoTool";
+            externalProcess.StartInfo.FileName = "dotnet";
+            externalProcess.StartInfo.Arguments = $"VideoTool.dll {argument}";
             externalProcess.StartInfo.RedirectStandardOutput = true;
             externalProcess.StartInfo.UseShellExecute = false;
             return externalProcess;
@@ -52,13 +53,13 @@ namespace VideoTool.Test
         {
             try
             {
-                using var process = VideoToolProcess();
+                using var process = VideoToolProcess(string.Empty);
 
                 process.Start();
                 string output = process.StandardOutput.ReadToEnd();
                 process.WaitForExit();
 
-                Console.WriteLine("Videotool convert output:");
+                Console.WriteLine("Videotool output:");
                 Console.WriteLine(output);
                 Console.WriteLine("-----------");
                 Console.WriteLine();
@@ -80,9 +81,7 @@ namespace VideoTool.Test
         [TestMethod]
         public void ConvertTest()
         {
-            using var process = VideoToolProcess();
-
-            process.StartInfo.Arguments = "convert";
+            using var process = VideoToolProcess("convert");
             process.Start();
             string output = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
