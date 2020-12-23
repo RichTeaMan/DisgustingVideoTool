@@ -11,6 +11,7 @@ on:
   # run once a week
   - cron: "0 1 * * 1"
 
+# runtime names from https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
 jobs:
   ci-build:
     strategy:
@@ -28,6 +29,13 @@ jobs:
           target: linux
           runtime: linux-x64
           artifact: VideoTool
+
+        - name: Mac
+          os: macos-10.15
+          target: mac
+          runtime: osx-x64
+          artifact: VideoTool
+
 
     name: ${{ matrix.cfg.name }} ${{ github.ref }}
     runs-on: ${{ matrix.cfg.os }}
