@@ -2,7 +2,7 @@
 
 ![Build](https://github.com/RichTeaMan/DisgustingVideoTool/workflows/Build/badge.svg)
 
-A quick and dirty (and limited) command line video tool for Windows and Linux.
+A quick and dirty (and limited) command line video tool for Windows, Linux, and OSX.
 
 ## Commands
 * yt -w KsdrUdByoPc https://www.youtube.com/watch?v=mxmD16121JU -pl PLH-huzMEgGWBUU5NcRJZ7Iss4nE3jfHh4-dir <optional>
