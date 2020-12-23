@@ -1,11 +1,9 @@
-﻿using SharpCompress.Readers;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -24,15 +22,30 @@ namespace VideoTool
 
         private const string FFMPEG_FRAME_COUNT_TEMPLATE = "-progress pipe:1 -i \"{0}\" -map 0:v:0 -c copy -f null - ";
 
+        private const string ROOT_FFMPEG_URL = "https://github.com/ADD_MORE{0}.zip";
+
         private readonly static string exeDirectory = "./";
         private readonly static string programName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "ffmpeg.exe" : "ffmpeg";
         private readonly static string programPath = Path.Combine(exeDirectory, programName);
 
-        private async Task DownloadFfmpegWindows()
+        private async Task DownloadFfmpeg()
         {
-            string url = "https://github.com/GyanD/codexffmpeg/releases/download/2020-12-15-git-32586a42da/ffmpeg-2020-12-15-git-32586a42da-essentials_build.zip";
+            string package;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                package = "win-x64";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                package = "linux-x64";
+            }
+            else
+            {
+                throw new Exception("Unsupported OS.");
+            }
+            string url = string.Format(ROOT_FFMPEG_URL, package);
 
-            string ffmpegZipLocation = Path.Combine(exeDirectory, "ffmpeg.zip");
+            string ffmpegZipLocation = Path.Combine(exeDirectory, $"ffmpeg-{package}.zip");
             string ffmpegUnzipLocation = Path.Combine(exeDirectory, "ffmpeg-decom");
 
             if (File.Exists(programName))
@@ -50,80 +63,9 @@ namespace VideoTool
                 var programPathFromArchive = Directory.EnumerateFiles(ffmpegUnzipLocation, programName, SearchOption.AllDirectories).FirstOrDefault();
                 if (programPathFromArchive == null)
                 {
-                    throw new Exception("Could not find ffmpeg.exe in zip archive.");
+                    throw new Exception("Could not find ffmpeg in zip archive.");
                 }
                 File.Move(programPathFromArchive, programPath);
-                Console.WriteLine($"ffmpeg saved to {programPath}.");
-            }
-            finally
-            {
-                try
-                {
-                    Directory.Delete(ffmpegUnzipLocation, true);
-                }
-                catch (IOException ex)
-                {
-                    Console.WriteLine(ex);
-                }
-                try
-                {
-                    File.Delete(ffmpegZipLocation);
-                }
-                catch (IOException ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-        }
-
-        private async Task DownloadFfmpegLinux()
-        {
-            string url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz";
-
-            string ffmpegZipLocation = Path.Combine(exeDirectory, "ffmpeg-release-amd64-static.tar.xz");
-            string ffmpegUnzipLocation = Path.Combine(exeDirectory, "ffmpeg-decom");
-
-            if (File.Exists(programName))
-            {
-                return;
-            }
-
-            try
-            {
-                var request = WebRequest.Create(url);
-                request.Timeout = 5 * 60 * 1000;
-                using (var requestStream = await request.GetRequestStreamAsync())
-                using (var fileStream = new FileStream(ffmpegZipLocation, FileMode.CreateNew))
-                {
-                    await requestStream.CopyToAsync(fileStream);
-                }
-
-                using (Stream stream = File.OpenRead(ffmpegZipLocation))
-                using (var reader = ReaderFactory.Open(stream))
-                {
-                    Directory.CreateDirectory(ffmpegUnzipLocation);
-                    reader.WriteAllToDirectory(ffmpegUnzipLocation);
-                }
-
-                var programPathFromArchive = Directory.EnumerateFiles(ffmpegUnzipLocation, programName, SearchOption.AllDirectories).FirstOrDefault();
-                if (programPathFromArchive == null)
-                {
-                    throw new Exception("Could not find ffmpeg in the archive.");
-                }
-                File.Move(programPathFromArchive, programPath);
-
-                // chmod +x ffmpeg
-                ProcessStartInfo startInfo = new ProcessStartInfo()
-                {
-                    FileName = "/bin/bash",
-                    Arguments = $"-c \" chmod +x  {programPath}\" ",
-
-                    CreateNoWindow = true
-                };
-
-                Process proc = new Process() { StartInfo = startInfo, };
-                proc.Start();
-
                 Console.WriteLine($"ffmpeg saved to {programPath}.");
             }
             finally
@@ -149,18 +91,7 @@ namespace VideoTool
 
         private async Task<ProcessStartInfo> FetchFfmpegProcess()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                await DownloadFfmpegWindows();
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                await DownloadFfmpegLinux();
-            }
-            else
-            {
-                throw new Exception("Video conversion not supported on this platform.");
-            }
+            await DownloadFfmpeg();
 
             var startInfo = new ProcessStartInfo()
             {
