@@ -105,6 +105,39 @@ namespace VideoTool.Test
         }
 
         [TestMethod]
+        public async Task ConvertDurationPortionTest()
+        {
+            string input = CopySampleVideoFile();
+            string resultFile = input.Replace(".mkv", ".mp4");
+            var duration = new TimeSpan(0, 0, 5);
+
+            await videoConverter.ConvertVideo(input, new TimeSpan(), duration);
+
+            Assert.IsTrue(File.Exists(resultFile), "mp4 file does not exist.");
+            Assert.IsTrue(new System.IO.FileInfo(resultFile).Length > 500 * 1000, "mp4 file is not large enough");
+
+            var frameCount = await videoConverter.FetchTotalVideoFrames(resultFile);
+            Assert.AreEqual((long)duration.TotalSeconds * 24, frameCount);
+        }
+
+        [TestMethod]
+        public async Task ConvertBeginningDurationPortionTest()
+        {
+            string input = CopySampleVideoFile();
+            string resultFile = input.Replace(".mkv", ".mp4");
+            var start = new TimeSpan(0, 0, 2);
+            var duration = new TimeSpan(0, 0, 5);
+
+            await videoConverter.ConvertVideo(input, start, duration);
+
+            Assert.IsTrue(File.Exists(resultFile), "mp4 file does not exist.");
+            Assert.IsTrue(new System.IO.FileInfo(resultFile).Length > 500 * 1000, "mp4 file is not large enough");
+
+            var frameCount = await videoConverter.FetchTotalVideoFrames(resultFile);
+            Assert.AreEqual((long)duration.TotalSeconds * 24, frameCount);
+        }
+
+        [TestMethod]
         public async Task FetchTotalVideoFramesTest()
         {
             string input = CopySampleVideoFile();

@@ -183,7 +183,7 @@ namespace VideoTool
             return frameCount;
         }
 
-        public async Task ConvertVideo(string videoPath, TimeSpan? videoStartTime = null)
+        public async Task ConvertVideo(string videoPath, TimeSpan? videoStartTime = null, TimeSpan? videoDuration = null)
         {
             string convertedPath = videoPath.Replace(@"\", "/");
             var startTime = DateTimeOffset.Now;
@@ -198,6 +198,10 @@ namespace VideoTool
             if (videoStartTime.HasValue)
             {
                 additionalArgs += $" -ss {videoStartTime.Value.TotalSeconds}";
+            }
+            if (videoDuration.HasValue)
+            {
+                additionalArgs += $" -t {videoDuration.Value.TotalSeconds}";
             }
             var command = string.Format(FFMPEG_TEMPLATE, additionalArgs, convertedPath, workingFile);
 
