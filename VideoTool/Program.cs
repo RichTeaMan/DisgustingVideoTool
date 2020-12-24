@@ -167,6 +167,16 @@ namespace VideoTool
 
                 try
                 {
+                    Console.WriteLine($"Converting file {filename}.");
+                    if (startTimeSpan.HasValue)
+                    {
+                        Console.WriteLine($"Video start time: {startTimeSpan}");
+                    }
+                    if (durationTimeSpan.HasValue)
+                    {
+                        Console.WriteLine($"Video duration: {durationTimeSpan}");
+                    }
+
                     var converter = new VideoConverter();
                     await converter.ConvertVideo(filename, startTimeSpan, durationTimeSpan);
                     Console.WriteLine("Conversion complete!");
