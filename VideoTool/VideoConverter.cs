@@ -188,9 +188,14 @@ namespace VideoTool
             string convertedPath = videoPath.Replace(@"\", "/");
             var startTime = DateTimeOffset.Now;
 
+            var fi = new FileInfo(convertedPath);
+            if (!fi.Exists)
+            {
+                Console.WriteLine($"File '{convertedPath}' does not exist.");
+                return;
+            }
             var totalFrameCount = await FetchTotalVideoFrames(videoPath);
 
-            var fi = new FileInfo(convertedPath);
             var outputVideo = videoPath.Replace(fi.Extension, ".mp4").Replace(@"\", "/");
             var workingFile = videoPath.Replace(fi.Extension, IN_PROGRESS_EXTENSION).Replace(@"\", "/");
 

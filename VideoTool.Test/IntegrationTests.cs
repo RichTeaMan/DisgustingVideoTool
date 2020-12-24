@@ -3,6 +3,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace VideoTool.Test
 {
@@ -92,6 +93,140 @@ namespace VideoTool.Test
             Console.WriteLine();
 
             Assert.IsTrue(File.Exists("sample.mp4"), "sample.mp4 does not exist.");
+        }
+
+        [TestMethod]
+        public void ConvertBeginningPortionNoFileTest()
+        {
+            using var process = VideoToolProcess("convert -s 2");
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            Console.WriteLine("Videotool convert output:");
+            Console.WriteLine(output);
+            Console.WriteLine("-----------");
+            Console.WriteLine();
+
+            Assert.IsFalse(File.Exists("sample.mp4"), "sample.mp4 does not exist.");
+            Assert.IsTrue(output?.Contains("Start or duration parameters must be used with a file parameter.") == true, "Start and duration parameters not allowed without file.");
+        }
+
+        [TestMethod]
+        public void ConvertDurationPortionNoFileTest()
+        {
+            using var process = VideoToolProcess("convert -d 2");
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            Console.WriteLine("Videotool convert output:");
+            Console.WriteLine(output);
+            Console.WriteLine("-----------");
+            Console.WriteLine();
+
+            Assert.IsFalse(File.Exists("sample.mp4"), "sample.mp4 does not exist.");
+            Assert.IsTrue(output?.Contains("Start or duration parameters must be used with a file parameter.") == true, "Start and duration parameters not allowed without file.");
+        }
+
+        [TestMethod]
+        public async Task ConvertBeginningPortionIntegerTest()
+        {
+            using var process = VideoToolProcess("convert -f sample.mkv -s 2");
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            Console.WriteLine("Videotool convert output:");
+            Console.WriteLine(output);
+            Console.WriteLine("-----------");
+            Console.WriteLine();
+
+            Assert.IsTrue(File.Exists("sample.mp4"), "sample.mp4 does not exist.");
+
+            var videoConverter = new VideoConverter();
+            var frameCount = await videoConverter.FetchTotalVideoFrames("sample.mp4");
+            Assert.AreEqual(12L * 24, frameCount);
+        }
+
+        [TestMethod]
+        public async Task ConvertBeginningPortionTimeSpanTest()
+        {
+            using var process = VideoToolProcess("convert -f sample.mkv -s 00:00:02");
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            Console.WriteLine("Videotool convert output:");
+            Console.WriteLine(output);
+            Console.WriteLine("-----------");
+            Console.WriteLine();
+
+            Assert.IsTrue(File.Exists("sample.mp4"), "sample.mp4 does not exist.");
+
+            var videoConverter = new VideoConverter();
+            var frameCount = await videoConverter.FetchTotalVideoFrames("sample.mp4");
+            Assert.AreEqual(12L * 24, frameCount);
+        }
+
+        [TestMethod]
+        public async Task ConvertDurationPortionIntegerTest()
+        {
+            using var process = VideoToolProcess("convert -f sample.mkv -d 5");
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            Console.WriteLine("Videotool convert output:");
+            Console.WriteLine(output);
+            Console.WriteLine("-----------");
+            Console.WriteLine();
+
+            Assert.IsTrue(File.Exists("sample.mp4"), "sample.mp4 does not exist.");
+
+            var videoConverter = new VideoConverter();
+            var frameCount = await videoConverter.FetchTotalVideoFrames("sample.mp4");
+            Assert.AreEqual(5L * 24, frameCount);
+        }
+
+        [TestMethod]
+        public async Task ConvertDurationPortionTimeSpanTest()
+        {
+            using var process = VideoToolProcess("convert -f sample.mkv -d 00:00:05");
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            Console.WriteLine("Videotool convert output:");
+            Console.WriteLine(output);
+            Console.WriteLine("-----------");
+            Console.WriteLine();
+
+            Assert.IsTrue(File.Exists("sample.mp4"), "sample.mp4 does not exist.");
+
+            var videoConverter = new VideoConverter();
+            var frameCount = await videoConverter.FetchTotalVideoFrames("sample.mp4");
+            Assert.AreEqual(5L * 24, frameCount);
+        }
+
+        [TestMethod]
+        public async Task ConvertBeginningDurationPortionTimeSpanTest()
+        {
+            using var process = VideoToolProcess("convert -f sample.mkv -s 00:00:02 -d 00:00:05");
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            Console.WriteLine("Videotool convert output:");
+            Console.WriteLine(output);
+            Console.WriteLine("-----------");
+            Console.WriteLine();
+
+            Assert.IsTrue(File.Exists("sample.mp4"), "sample.mp4 does not exist.");
+
+            var videoConverter = new VideoConverter();
+            var frameCount = await videoConverter.FetchTotalVideoFrames("sample.mp4");
+            Assert.AreEqual(5L * 24, frameCount);
         }
     }
 }

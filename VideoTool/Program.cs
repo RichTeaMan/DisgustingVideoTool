@@ -88,32 +88,94 @@ namespace VideoTool
 
         [ClCommand("convert")]
         public async static Task Convert(
+            [ClArgs("file", "f")]
+            string filename = null,
             [ClArgs("mp4")]
-            bool mp4 = false
+            bool mp4 = false,
+            [ClArgs("start", "s")]
+            string start = null,
+            [ClArgs("duration", "d")]
+            string duration = null
             )
         {
-            // get videos to convert
-            var videoFiles = GetVideoFiles();
-
-            foreach (var videoFile in videoFiles)
+            if (string.IsNullOrEmpty(filename))
             {
-                // skip mp4 files if flag is not enabled
-                if (videoFile.Extension == ".mp4" && !mp4)
+                if (!string.IsNullOrEmpty(start) || !string.IsNullOrEmpty(duration))
                 {
-                    continue;
+                    Console.WriteLine("Start or duration parameters must be used with a file parameter.");
+                    return;
                 }
+
+                // get videos to convert
+                var videoFiles = GetVideoFiles();
+
+                foreach (var videoFile in videoFiles)
+                {
+                    // skip mp4 files if flag is not enabled
+                    if (videoFile.Extension == ".mp4" && !mp4)
+                    {
+                        continue;
+                    }
+                    try
+                    {
+                        var converter = new VideoConverter();
+                        await converter.ConvertVideo(videoFile.FullName);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("An error occured: {0}", ex);
+                    }
+
+                }
+                Console.WriteLine("Conversion complete!");
+            }
+            else
+            {
+                TimeSpan? startTimeSpan = null;
+                TimeSpan? durationTimeSpan = null;
+
+                if (!string.IsNullOrEmpty(start))
+                {
+                    if (int.TryParse(start, out int startSeconds))
+                    {
+                        startTimeSpan = new TimeSpan(0, 0, startSeconds);
+                    }
+                    else if (TimeSpan.TryParse(start, out TimeSpan _startTimeSpan))
+                    {
+                        startTimeSpan = _startTimeSpan;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Cannot parse start time '{start}'.");
+                    }
+                }
+                if (!string.IsNullOrEmpty(duration))
+                {
+                    if (int.TryParse(duration, out int durationSeconds))
+                    {
+                        durationTimeSpan = new TimeSpan(0, 0, durationSeconds);
+                    }
+                    else if (TimeSpan.TryParse(duration, out TimeSpan _durationTimeSpan))
+                    {
+                        durationTimeSpan = _durationTimeSpan;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Cannot parse duration time '{duration}'.");
+                    }
+                }
+
                 try
                 {
                     var converter = new VideoConverter();
-                    await converter.ConvertVideo(videoFile.FullName);
+                    await converter.ConvertVideo(filename, startTimeSpan, durationTimeSpan);
+                    Console.WriteLine("Conversion complete!");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("An error occured: {0}", ex);
                 }
-
             }
-            Console.WriteLine("Conversion complete!");
         }
 
         [ClCommand("list-backups")]
