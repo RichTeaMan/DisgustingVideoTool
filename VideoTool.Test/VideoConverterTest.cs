@@ -83,6 +83,25 @@ namespace VideoTool.Test
 
             Assert.IsTrue(File.Exists(resultFile), "mp4 file does not exist.");
             Assert.IsTrue(new System.IO.FileInfo(resultFile).Length > 500 * 1000, "mp4 file is not large enough");
+
+            var frameCount = await videoConverter.FetchTotalVideoFrames(resultFile);
+            Assert.AreEqual(336L, frameCount);
+        }
+
+        [TestMethod]
+        public async Task ConvertBeginningPortionTest()
+        {
+            string input = CopySampleVideoFile();
+            string resultFile = input.Replace(".mkv", ".mp4");
+            var start = new TimeSpan(0, 0, 2);
+
+            await videoConverter.ConvertVideo(input, start);
+
+            Assert.IsTrue(File.Exists(resultFile), "mp4 file does not exist.");
+            Assert.IsTrue(new System.IO.FileInfo(resultFile).Length > 500 * 1000, "mp4 file is not large enough");
+
+            var frameCount = await videoConverter.FetchTotalVideoFrames(resultFile);
+            Assert.AreEqual(336L - 48, frameCount);
         }
 
         [TestMethod]

@@ -18,7 +18,7 @@ namespace VideoTool
 
         private const string IN_PROGRESS_EXTENSION = ".convert.mp4";
 
-        private const string FFMPEG_TEMPLATE = "-i \"{0}\" -c:v libx264 -crf 20 -c:a aac -b:a 320K \"{1}\" -y -progress pipe:1";
+        private const string FFMPEG_TEMPLATE = "-i \"{1}\" {0} -c:v libx264 -crf 20 -c:a aac -b:a 320K \"{2}\" -y -progress pipe:1";
 
         private const string FFMPEG_FRAME_COUNT_TEMPLATE = "-progress pipe:1 -i \"{0}\" -map 0:v:0 -c copy -f null - ";
 
@@ -183,7 +183,7 @@ namespace VideoTool
             return frameCount;
         }
 
-        public async Task ConvertVideo(string videoPath)
+        public async Task ConvertVideo(string videoPath, TimeSpan? videoStartTime = null)
         {
             string convertedPath = videoPath.Replace(@"\", "/");
             var startTime = DateTimeOffset.Now;
@@ -194,7 +194,12 @@ namespace VideoTool
             var outputVideo = videoPath.Replace(fi.Extension, ".mp4").Replace(@"\", "/");
             var workingFile = videoPath.Replace(fi.Extension, IN_PROGRESS_EXTENSION).Replace(@"\", "/");
 
-            var command = string.Format(FFMPEG_TEMPLATE, convertedPath, workingFile);
+            string additionalArgs = string.Empty;
+            if (videoStartTime.HasValue)
+            {
+                additionalArgs += $" -ss {videoStartTime.Value.TotalSeconds}";
+            }
+            var command = string.Format(FFMPEG_TEMPLATE, additionalArgs, convertedPath, workingFile);
 
             var processInfo = await FetchFfmpegProcess();
             processInfo.Arguments = command;
